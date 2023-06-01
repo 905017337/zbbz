@@ -34,6 +34,6 @@ export default {
 	},
 	//获取分类对应的装备
 	findEquByCategory(data){
-		return request("findEquByCategory",data,"get")
+		return request("findEquByCategory",data,"POST")
 	}
 }

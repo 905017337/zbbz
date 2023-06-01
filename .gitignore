@@ -32,3 +32,4 @@ logs/
 tmp/
 !DmJdbcDriver18.jar
 !kingbase8-8.6.0.jar
+snowy-web-app/src/main/resources/env.env

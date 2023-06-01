@@ -28,5 +28,13 @@ export default {
 	// 获取任务装备配置详情
 	zbbzPlanEquDetail(data) {
 		return request('detail', data, 'get')
+	},
+	// 更新任务装备配置
+	updatePlanEqu(data) {
+		return request('updatePlanEqu', data, 'post')
+	},
+	// 根据分类id获取对应的装备
+	findEquByCategory(data) {
+		return request('findEquByCategory', data, 'get')
 	}
 }
