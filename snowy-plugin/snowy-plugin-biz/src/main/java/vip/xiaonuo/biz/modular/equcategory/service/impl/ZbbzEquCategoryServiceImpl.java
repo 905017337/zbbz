@@ -19,6 +19,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -60,6 +61,8 @@ public class ZbbzEquCategoryServiceImpl extends ServiceImpl<ZbbzEquCategoryMappe
     ZbbzEquCategoryMapper zbbzEquCategoryMapper;
     @Resource
     ZbbzEquBasicsDetailsMapper zbbzEquBasicsDetailsMapper;
+    @Resource
+    ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
     @Override
     public Page<ZbbzEquCategory> page(ZbbzEquCategoryPageParam zbbzEquCategoryPageParam) {
         QueryWrapper<ZbbzEquCategory> queryWrapper = new QueryWrapper<>();
@@ -141,36 +144,16 @@ public class ZbbzEquCategoryServiceImpl extends ServiceImpl<ZbbzEquCategoryMappe
     }
 
     @Override
-    public List<ZbbzEquBasicsDetails> findEquByCategory(String catewayId) {
-        List<ZbbzEquCategoryDto> catewayTree = new ArrayList<>();
-        List<ZbbzEquCategory> list = this.list();
-        for (ZbbzEquCategory zbbzEquCategory : list) {
-            ZbbzEquCategoryDto dto = new ZbbzEquCategoryDto();
-            BeanUtil.copyProperties(zbbzEquCategory,dto);
-            dto.setTitle(zbbzEquCategory.getName());
-            dto.setValue(zbbzEquCategory.getId());
-            catewayTree.add(dto);
-        }
+    public List<ZbbzEquBasicsDetails> findEquByCategory(List<String> ids) {
         List<ZbbzEquBasicsDetails> arrayList = new ArrayList<>();
-
-        //获取分类下的所有装备
-        ZbbzEquCategoryDto zbbzEquCategoryDto = catewayTree.stream().filter(tree -> catewayId.equals(tree.getParentId())).peek(
-                //设置子节点信息
-                tree -> tree.setChildren(getChildrenList(tree, catewayTree))
-        ).findFirst().orElse(new ZbbzEquCategoryDto());
-        getEquByCatewayId(zbbzEquCategoryDto,arrayList);
+        ids.stream().forEach(e->{
+            QueryWrapper<ZbbzEquBasicsDetails> eq = new QueryWrapper<>();
+            eq.lambda().eq(ZbbzEquBasicsDetails::getCategoryId,e);
+            List<ZbbzEquBasicsDetails> detailsList = zbbzEquBasicsDetailsMapper.selectList(eq);
+            arrayList.addAll(detailsList);
+        });
         return arrayList;
     }
 
-    private void getEquByCatewayId(ZbbzEquCategoryDto zbbzEquCategoryDto,List<ZbbzEquBasicsDetails> arrayList) {
-        zbbzEquCategoryDto.getChildren().stream().forEach(e->{
-            QueryWrapper<ZbbzEquBasicsDetails> wrapper = new QueryWrapper<>();
-            wrapper.lambda().eq(ZbbzEquBasicsDetails::getCategoryId,e.getId());
-            List<ZbbzEquBasicsDetails> selectList = zbbzEquBasicsDetailsMapper.selectList(wrapper);
-            arrayList.addAll(selectList);
-            if(!e.getChildren().isEmpty()){
-                this.getEquByCatewayId(e,arrayList);
-            }
-        });
-    }
+
 }

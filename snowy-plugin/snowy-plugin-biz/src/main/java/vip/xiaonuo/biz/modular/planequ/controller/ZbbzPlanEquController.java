@@ -128,4 +128,11 @@ public class ZbbzPlanEquController {
     public CommonResult<ZbbzPlanEqu> detail(@Valid ZbbzPlanEquIdParam zbbzPlanEquIdParam) {
         return CommonResult.data(zbbzPlanEquService.detail(zbbzPlanEquIdParam));
     }
+//    @ApiOperationSupport(order = 6)
+//    @ApiOperation("更新任务装备配置")
+//    @SaCheckPermission("/biz/planequ/updatePlanEqu")
+//    @GetMapping("/biz/planequ/updatePlanEqu")
+//    public CommonResult updatePlanEqu(){
+//        return CommonResult.data(zbbzPlanEquService.updatePlanEqu(zbbzPlanEquIdParam));
+//    }
 }

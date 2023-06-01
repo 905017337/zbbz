@@ -30,6 +30,9 @@ import vip.xiaonuo.biz.modular.equcategory.service.ZbbzEquCategoryService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 装备分类控制器
@@ -133,8 +136,12 @@ public class ZbbzEquCategoryController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取装备树对应的武器")
     @SaCheckPermission("/biz/equcategory/categoryTree")
-    @GetMapping("/biz/equcategory/findEquByCategory")
-    public CommonResult findEquByCategory(@RequestParam(value = "catewayId") String catewayId){
-        return CommonResult.data(zbbzEquCategoryService.findEquByCategory(catewayId));
+    @PostMapping("/biz/equcategory/findEquByCategory")
+    public CommonResult findEquByCategory(@RequestBody equByIdsParam param){
+        final List<String> ids = Arrays.stream(param.getIds()).collect(Collectors.toList());
+
+        return CommonResult.data(zbbzEquCategoryService.findEquByCategory(ids));
     }
+
+
 }
