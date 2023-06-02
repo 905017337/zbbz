@@ -34,8 +34,7 @@ import vip.xiaonuo.biz.modular.planbasicsdetails.mapper.ZbbzPlanBasicsDetailsMap
 import vip.xiaonuo.biz.modular.planbasicsdetails.service.ZbbzPlanBasicsDetailsService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 作战任务Service接口实现类
@@ -66,7 +65,10 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         Page<ZbbzPlanBasicsDetailsDto> result = new Page<>();
         //任务选择的装备
         List<ZbbzPlanBasicsDetailsDto> arrayList1 = new ArrayList<>();
+        //渲染装备分类树
+
         records.stream().forEach(e->{
+            Set<String> treeSelect = new HashSet<>();
             ZbbzPlanBasicsDetailsDto planDto = new ZbbzPlanBasicsDetailsDto();
             BeanUtil.copyProperties(e,planDto);
             QueryWrapper<ZbbzPlanEqu> wrapper = new QueryWrapper<>();
@@ -74,11 +76,14 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
             List<ZbbzPlanEqu> equList = zbbzPlanEquMapper.selectList(wrapper);
             ArrayList<ZbbzPlanEquDto> arrayList = new ArrayList<>();
             equList.stream().forEach(item->{
+                treeSelect.add(item.getEquId());
                 ZbbzPlanEquDto dto = new ZbbzPlanEquDto();
                 BeanUtil.copyProperties(item,dto);
                 arrayList.add(dto);
-                planDto.setZbbzEquBasicsDetailsParamList(arrayList);
             });
+            planDto.setZbbzEquBasicsDetailsParamList(arrayList);
+            String[] arr = treeSelect.toArray(new String[treeSelect.size()]);
+            planDto.setTreeSelect(arr);
             arrayList1.add(planDto);
         });
         BeanUtil.copyProperties(detailsPage,result);

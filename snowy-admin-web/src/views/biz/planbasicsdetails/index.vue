@@ -145,7 +145,7 @@
 	}
 	const loadData = (parameter) => {
 		const searchFormParam = JSON.parse(JSON.stringify(searchFormState))
-		return zbbzPlanBasicsDetailsApi.zbbzPlanBasicsDetailsPage(Object.assign(parameter, searchFormParam)).then((data) => {
+		 return zbbzPlanBasicsDetailsApi.zbbzPlanBasicsDetailsPage(Object.assign(parameter, searchFormParam)).then((data) => {
 			return data
 		})
 	}

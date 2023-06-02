@@ -22,6 +22,7 @@ import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 作战任务实体
@@ -48,6 +49,8 @@ public class ZbbzPlanBasicsDetailsDto {
 
     /** 作战位置 */
     private String location;
-
+    /** 选择的装备 */
     private List<ZbbzPlanEquDto> zbbzEquBasicsDetailsParamList;
+
+    private String[] treeSelect;
 }

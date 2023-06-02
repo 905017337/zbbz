@@ -74,16 +74,32 @@ const formRef = ref()
 const formData = ref({})
 const submitLoading = ref(false)
 const SHOW_PARENT = TreeSelect.SHOW_ALL
+//树形数据
+const expandedKeys = ref();
+const selectedKeys = ref();
+const checkedKeys = ref<String>(["10101","10301"]);
+
+//格式化后端返回的树形数据
+const dealTreeData=(treeData)=>{
+	const data=treeData.map(item=>({
+		...item,
+		title:item.name,
+		key:item.id,
+		children:(item.child&&item.child.length)?dealTreeData(item.child):null
+	}))
+	return data
+}
 // 打开抽屉
 const onOpen = (record) => {
-	console.log(record)
 	visible.value = true
+	// checkedKeys.value = record.treeSelect
+	// console.log(checkedKeys);
 	if (record) {
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
 	}
-	console.log("获取装备配置")
 }
+
 // 关闭抽屉
 const onClose = () => {
 	formRef.value.resetFields()
@@ -115,9 +131,7 @@ const onSubmit = () => {
 	})
 };
 
-const expandedKeys = ref();
-const selectedKeys = ref();
-const checkedKeys = ref();
+
 	watch(expandedKeys, () => {
       console.log('expandedKeys', expandedKeys);
     });
@@ -148,7 +162,10 @@ const treeSelect = (selectedKeysValue, info) => {
 const treeData = []
 const loadData = () => {
 	zbbzEquCategoryApi.categoryTree().then((res) => {
+		// console.log(res);
+		// let tempTree = dealTreeData(res);
 		treeData.push(res)
+		console.log(treeData);
 	})
 }
 
