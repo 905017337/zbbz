@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +63,7 @@ public class ZbbzPlanBasicsDetailsController {
     @ApiOperation("获取作战任务分页")
     @SaCheckPermission("/biz/planbasicsdetails/page")
     @GetMapping("/biz/planbasicsdetails/page")
-    public CommonResult<Page<ZbbzPlanBasicsDetails>> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam) {
+    public CommonResult<Page<ZbbzPlanBasicsDetailsDto>> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam) {
         return CommonResult.data(zbbzPlanBasicsDetailsService.page(zbbzPlanBasicsDetailsPageParam));
     }
 
@@ -93,8 +94,8 @@ public class ZbbzPlanBasicsDetailsController {
     @CommonLog("编辑作战任务")
     @SaCheckPermission("/biz/planbasicsdetails/edit")
     @PostMapping("/biz/planbasicsdetails/edit")
-    public CommonResult<String> edit(@RequestBody @Valid ZbbzPlanBasicsDetailsEditParam zbbzPlanBasicsDetailsEditParam) {
-        zbbzPlanBasicsDetailsService.edit(zbbzPlanBasicsDetailsEditParam);
+    public CommonResult<String> edit(@RequestBody @Valid ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
+        zbbzPlanBasicsDetailsService.edit(zbbzPlanBasicsDetailsAddParam);
         return CommonResult.ok();
     }
 

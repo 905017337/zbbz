@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.PlanNameAndIdDto;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +33,10 @@ import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetails
 import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetailsPageParam;
 import vip.xiaonuo.biz.modular.maintainteamdetails.service.ZbbzMaintainTeamDetailsService;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 基础信息Service接口实现类
@@ -93,5 +97,16 @@ public class ZbbzMaintainTeamDetailsServiceImpl extends ServiceImpl<ZbbzMaintain
             throw new CommonException("基础信息不存在，id值为：{}", id);
         }
         return zbbzMaintainTeamDetails;
+    }
+
+    @Override
+    public List<PlanNameAndIdDto> findmainNameList() {
+        ArrayList<PlanNameAndIdDto> list = new ArrayList<>();
+        this.list().stream().forEach(e->{
+            PlanNameAndIdDto dto = new PlanNameAndIdDto();
+            dto.setValue(e.getName());
+            list.add(dto);
+        });
+        return list;
     }
 }

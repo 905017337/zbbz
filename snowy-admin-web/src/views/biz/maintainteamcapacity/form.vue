@@ -10,7 +10,14 @@
 			<a-row :gutter="16">
 				<a-col :span="12">
 					<a-form-item label="维修团队id：" name="maintainTeamId">
-						<a-input v-model:value="formData.maintainTeamId" placeholder="请输入维修团队id" allow-clear />
+						<!-- <a-input v-model:value="formData.maintainTeamId" placeholder="请输入维修团队id" allow-clear /> -->
+						<a-select
+						mode="tags"
+						style="width: 100%"
+						placeholder="请选择维修团队"
+						:options="mainNameList"
+						@change="handleChange"
+					></a-select>
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
@@ -29,8 +36,16 @@
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-					<a-form-item label="剩余寿命：" name="residueLifetime">
-						<a-input v-model:value="formData.residueLifetime" placeholder="请输入剩余寿命" allow-clear />
+						<!-- <a-input v-model:value="formData.residueLifetime" placeholder="请输入剩余寿命" allow-clear /> -->
+						<a-form-item label="剩余寿命：" name="residueLifetime">
+							<!-- <a-input v-model:value="formData.maintainTeamId" placeholder="请输入维修团队id" allow-clear /> -->
+							<a-select
+							mode="tags"
+							style="width: 100%"
+							placeholder="请选择维修团队"
+							:options="residueLifetime"
+							@change="residueLifetimeChange"
+						></a-select>
 					</a-form-item>
 				</a-col>
 			</a-row>
@@ -45,7 +60,9 @@
 <script setup name="zbbzMaintainTeamCapacityForm">
 	import { cloneDeep } from 'lodash-es'
 	import { required } from '@/utils/formRules'
+	import zbbzEquComponentDetailsApi from '@/api/biz/zbbzEquComponentDetailsApi'
 	import zbbzMaintainTeamCapacityApi from '@/api/biz/zbbzMaintainTeamCapacityApi'
+	import zbbzMaintainTeamDetailsApi from '@/api/biz/zbbzMaintainTeamDetailsApi'
 	// 抽屉状态
 	const visible = ref(false)
 	const emit = defineEmits({ successful: null })
@@ -53,7 +70,23 @@
 	// 表单数据
 	const formData = ref({})
 	const submitLoading = ref(false)
-
+	const mainNameList = ref([])
+	const loadNmainName=()=>{
+		console.log("111")
+		 let ss = zbbzMaintainTeamDetailsApi.findmainNameList().then((res)=>{
+		    mainNameList.value = res
+		})
+		console.log(ss)
+	}
+	loadNmainName()
+	const residueLifetimeChange=(value)=>{
+		console.log(value)
+		if(value=="空闲"){
+			formData.value.residueLifetime=0
+		}else{
+			formData.value.residueLifetime=1
+		}
+	}
 	// 打开抽屉
 	const onOpen = (record) => {
 		visible.value = true
@@ -71,6 +104,11 @@
 	// 默认要校验的
 	const formRules = {
 	}
+	const residueLifetime=([{
+		value:'空闲'
+	},{
+		value:'占用'
+	}])
 	// 验证并提交数据
 	const onSubmit = () => {
 		formRef.value.validate().then(() => {

@@ -30,4 +30,5 @@ export default {
 		return request('detail', data, 'get')
 	},
 
+
 }

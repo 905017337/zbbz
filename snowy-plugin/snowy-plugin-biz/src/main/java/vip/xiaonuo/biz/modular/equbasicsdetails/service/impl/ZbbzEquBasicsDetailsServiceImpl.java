@@ -65,7 +65,19 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
         } else {
             queryWrapper.lambda().orderByAsc(ZbbzEquBasicsDetails::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ZbbzEquBasicsDetails> detailsPage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<ZbbzEquBasicsDetails> detailsList = detailsPage.getRecords();
+        detailsList.stream().forEach(e->{
+            String residueLifetime = e.getResidueLifetime();
+            if("0".equals(residueLifetime)) e.setResidueLifetime("新品");
+            if("1".equals(residueLifetime)) e.setResidueLifetime("堪用");
+            if("2".equals(residueLifetime)) e.setResidueLifetime("待修");
+            if("3".equals(residueLifetime)) e.setResidueLifetime("损毁");
+            String status = e.getStatus();
+            if("0".equals(status)) e.setStatus("空闲");
+            if("1".equals(status)) e.setStatus("占用");
+        });
+        return detailsPage.setRecords(detailsList);
     }
 
     @Transactional(rollbackFor = Exception.class)

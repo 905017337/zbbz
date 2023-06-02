@@ -28,5 +28,6 @@ export default {
 	// 获取零部件管理详情
 	zbbzMaintainTeamCapacityDetail(data) {
 		return request('detail', data, 'get')
-	}
+	},
+
 }

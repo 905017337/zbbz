@@ -20,6 +20,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 作战任务添加参数
@@ -31,6 +32,7 @@ import java.util.Date;
 @Setter
 public class ZbbzPlanBasicsDetailsAddParam {
 
+    private String id;
     /** 名称 */
     @ApiModelProperty(value = "名称", required = true, position = 2)
     @NotBlank(message = "name不能为空")
@@ -50,5 +52,7 @@ public class ZbbzPlanBasicsDetailsAddParam {
     @ApiModelProperty(value = "作战位置", required = true, position = 5)
     @NotBlank(message = "location不能为空")
     private String location;
+
+    private List<ZbbzEquBasicsDetailsParam> zbbzEquBasicsDetailsParamList;
 
 }

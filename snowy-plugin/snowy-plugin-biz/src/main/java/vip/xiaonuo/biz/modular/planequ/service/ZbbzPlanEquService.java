@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.planequ.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquEditParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquIdParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquPageParam;
+import vip.xiaonuo.biz.modular.planequ.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,6 @@ public interface ZbbzPlanEquService extends IService<ZbbzPlanEqu> {
      * @date  2023/06/01 12:42
      **/
     ZbbzPlanEqu queryEntity(String id);
+
+    List<ZbbzPlanEqu> findeqyByPlanId(ZbbzEquByPlanIdParam zbbzEquByPlanIdParam);
 }

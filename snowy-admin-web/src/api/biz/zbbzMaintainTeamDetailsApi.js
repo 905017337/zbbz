@@ -28,5 +28,9 @@ export default {
 	// 获取基础信息详情
 	zbbzMaintainTeamDetailsDetail(data) {
 		return request('detail', data, 'get')
-	}
+	},
+	//获取维修团队名称
+	findmainNameList(data){
+		return request('findmainNameList', data, 'get')
+	},
 }

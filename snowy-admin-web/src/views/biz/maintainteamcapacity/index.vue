@@ -92,6 +92,13 @@
 			width: '150px'
 		})
 	}
+	//导出excel
+	const exportBatchUser = (params) => {
+		userApi.userExport(params).then((res) => {
+			downloadUtil.resultDownload(res)
+			table.value.clearSelected()
+		})
+	}
 	const selectedRowKeys = ref([])
 	// 列表选择配置
 	const options = {

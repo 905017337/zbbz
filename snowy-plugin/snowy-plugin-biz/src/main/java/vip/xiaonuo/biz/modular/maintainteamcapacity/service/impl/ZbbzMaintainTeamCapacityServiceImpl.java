@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -59,7 +60,16 @@ public class ZbbzMaintainTeamCapacityServiceImpl extends ServiceImpl<ZbbzMaintai
         } else {
             queryWrapper.lambda().orderByAsc(ZbbzMaintainTeamCapacity::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ZbbzMaintainTeamCapacity> detailsPage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<ZbbzMaintainTeamCapacity> detailsList = detailsPage.getRecords();
+        detailsList.stream().forEach(e->{
+            String residueLifetime = e.getResidueLifetime();
+            if("0".equals(residueLifetime)) e.setResidueLifetime("新品");
+            if("1".equals(residueLifetime)) e.setResidueLifetime("堪用");
+            if("2".equals(residueLifetime)) e.setResidueLifetime("待修");
+            if("3".equals(residueLifetime)) e.setResidueLifetime("损毁");
+        });
+        return detailsPage.setRecords(detailsList);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -21,17 +21,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
+import vip.xiaonuo.biz.modular.planbasicsdetails.param.*;
+import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
+import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
+import vip.xiaonuo.biz.modular.planequ.mapper.ZbbzPlanEquMapper;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.planbasicsdetails.entity.ZbbzPlanBasicsDetails;
 import vip.xiaonuo.biz.modular.planbasicsdetails.mapper.ZbbzPlanBasicsDetailsMapper;
-import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsAddParam;
-import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsEditParam;
-import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsIdParam;
-import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsPageParam;
 import vip.xiaonuo.biz.modular.planbasicsdetails.service.ZbbzPlanBasicsDetailsService;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,8 +46,10 @@ import java.util.List;
 @Service
 public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasicsDetailsMapper, ZbbzPlanBasicsDetails> implements ZbbzPlanBasicsDetailsService {
 
+    @Resource
+    ZbbzPlanEquMapper zbbzPlanEquMapper;
     @Override
-    public Page<ZbbzPlanBasicsDetails> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam) {
+    public Page<ZbbzPlanBasicsDetailsDto> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam) {
         QueryWrapper<ZbbzPlanBasicsDetails> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(zbbzPlanBasicsDetailsPageParam.getName())) {
             queryWrapper.lambda().like(ZbbzPlanBasicsDetails::getName, zbbzPlanBasicsDetailsPageParam.getName());
@@ -56,7 +61,29 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         } else {
             queryWrapper.lambda().orderByAsc(ZbbzPlanBasicsDetails::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ZbbzPlanBasicsDetails> detailsPage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<ZbbzPlanBasicsDetails> records = detailsPage.getRecords();
+        Page<ZbbzPlanBasicsDetailsDto> result = new Page<>();
+        //任务选择的装备
+        List<ZbbzPlanBasicsDetailsDto> arrayList1 = new ArrayList<>();
+        records.stream().forEach(e->{
+            ZbbzPlanBasicsDetailsDto planDto = new ZbbzPlanBasicsDetailsDto();
+            BeanUtil.copyProperties(e,planDto);
+            QueryWrapper<ZbbzPlanEqu> wrapper = new QueryWrapper<>();
+            wrapper.lambda().eq(ZbbzPlanEqu::getPlanId,e.getId());
+            List<ZbbzPlanEqu> equList = zbbzPlanEquMapper.selectList(wrapper);
+            ArrayList<ZbbzPlanEquDto> arrayList = new ArrayList<>();
+            equList.stream().forEach(item->{
+                ZbbzPlanEquDto dto = new ZbbzPlanEquDto();
+                BeanUtil.copyProperties(item,dto);
+                arrayList.add(dto);
+                planDto.setZbbzEquBasicsDetailsParamList(arrayList);
+            });
+            arrayList1.add(planDto);
+        });
+        BeanUtil.copyProperties(detailsPage,result);
+        result.setRecords(arrayList1);
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -64,13 +91,27 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
     public void add(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
         ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = BeanUtil.toBean(zbbzPlanBasicsDetailsAddParam, ZbbzPlanBasicsDetails.class);
         this.save(zbbzPlanBasicsDetails);
+        updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);
     }
 
+    public void updatePlanEquByPlanId(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam){
+        zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList().stream().forEach(e->{
+            ZbbzPlanEqu planEqu = new ZbbzPlanEqu();
+            planEqu.setPlanId(zbbzPlanBasicsDetailsAddParam.getId());
+            planEqu.setName(e.getName());
+            planEqu.setModel(e.getModel());
+            zbbzPlanEquMapper.insert(planEqu);
+        });
+    }
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(ZbbzPlanBasicsDetailsEditParam zbbzPlanBasicsDetailsEditParam) {
-        ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = this.queryEntity(zbbzPlanBasicsDetailsEditParam.getId());
-        BeanUtil.copyProperties(zbbzPlanBasicsDetailsEditParam, zbbzPlanBasicsDetails);
+    public void edit(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
+        ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = this.queryEntity(zbbzPlanBasicsDetailsAddParam.getId());
+        BeanUtil.copyProperties(zbbzPlanBasicsDetailsAddParam, zbbzPlanBasicsDetails);
+        QueryWrapper<ZbbzPlanEqu> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(ZbbzPlanEqu::getPlanId,zbbzPlanBasicsDetailsAddParam.getId());
+        zbbzPlanEquMapper.delete(queryWrapper);
+        updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);
         this.updateById(zbbzPlanBasicsDetails);
     }
 
@@ -92,6 +133,17 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         if(ObjectUtil.isEmpty(zbbzPlanBasicsDetails)) {
             throw new CommonException("作战任务不存在，id值为：{}", id);
         }
+        QueryWrapper<ZbbzPlanEqu> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(ZbbzPlanEqu::getPlanId,zbbzPlanBasicsDetails.getId());
+        ZbbzPlanBasicsDetailsDto detailsDto = new ZbbzPlanBasicsDetailsDto();
+        BeanUtil.copyProperties(zbbzPlanBasicsDetails,detailsDto);
+        ArrayList<ZbbzPlanEquDto> list = new ArrayList<>();
+        zbbzPlanEquMapper.selectList(wrapper).stream().forEach(e->{
+            ZbbzPlanEquDto dto = new ZbbzPlanEquDto();
+            BeanUtil.copyProperties(e,dto);
+            list.add(dto);
+        });
+        detailsDto.setZbbzEquBasicsDetailsParamList(list);
         return zbbzPlanBasicsDetails;
     }
 }

@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetails
 import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetailsEditParam;
 import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetailsIdParam;
 import vip.xiaonuo.biz.modular.maintainteamdetails.param.ZbbzMaintainTeamDetailsPageParam;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.PlanNameAndIdDto;
 
 import java.util.List;
 
@@ -77,4 +78,6 @@ public interface ZbbzMaintainTeamDetailsService extends IService<ZbbzMaintainTea
      * @date  2023/06/01 12:43
      **/
     ZbbzMaintainTeamDetails queryEntity(String id);
+
+    List<PlanNameAndIdDto> findmainNameList();
 }

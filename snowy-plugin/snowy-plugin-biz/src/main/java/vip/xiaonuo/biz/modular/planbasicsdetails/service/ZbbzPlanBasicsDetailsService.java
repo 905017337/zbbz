@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.planbasicsdetails.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.planbasicsdetails.entity.ZbbzPlanBasicsDetails;
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsAddParam;
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsEditParam;
@@ -36,7 +37,7 @@ public interface ZbbzPlanBasicsDetailsService extends IService<ZbbzPlanBasicsDet
      * @author czh
      * @date  2023/06/01 12:40
      */
-    Page<ZbbzPlanBasicsDetails> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam);
+    Page<ZbbzPlanBasicsDetailsDto> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam);
 
     /**
      * 添加作战任务
@@ -52,7 +53,7 @@ public interface ZbbzPlanBasicsDetailsService extends IService<ZbbzPlanBasicsDet
      * @author czh
      * @date  2023/06/01 12:40
      */
-    void edit(ZbbzPlanBasicsDetailsEditParam zbbzPlanBasicsDetailsEditParam);
+    void edit(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam);
 
     /**
      * 删除作战任务

@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.planequ.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquEditParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquIdParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquPageParam;
 import vip.xiaonuo.biz.modular.planequ.service.ZbbzPlanEquService;
 
 import javax.annotation.Resource;
@@ -128,11 +125,12 @@ public class ZbbzPlanEquController {
     public CommonResult<ZbbzPlanEqu> detail(@Valid ZbbzPlanEquIdParam zbbzPlanEquIdParam) {
         return CommonResult.data(zbbzPlanEquService.detail(zbbzPlanEquIdParam));
     }
-//    @ApiOperationSupport(order = 6)
-//    @ApiOperation("更新任务装备配置")
-//    @SaCheckPermission("/biz/planequ/updatePlanEqu")
-//    @GetMapping("/biz/planequ/updatePlanEqu")
-//    public CommonResult updatePlanEqu(){
-//        return CommonResult.data(zbbzPlanEquService.updatePlanEqu(zbbzPlanEquIdParam));
-//    }
+
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取任务对应装备")
+    @SaCheckPermission("/biz/planequ/findeqyByPlanId")
+    @GetMapping("/biz/planequ/findeqyByPlanId")
+    public CommonResult findeqyByPlanId(ZbbzEquByPlanIdParam zbbzEquByPlanIdParam) {
+        return CommonResult.data(zbbzPlanEquService.findeqyByPlanId(zbbzEquByPlanIdParam));
+    }
 }

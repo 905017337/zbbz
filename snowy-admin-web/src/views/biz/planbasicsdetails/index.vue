@@ -6,6 +6,7 @@
 					<a-form-item label="名称" name="name">
 						<a-input v-model:value="searchFormState.name" placeholder="请输入名称" />
 					</a-form-item>
+
 				</a-col>
 				<a-col :span="6">
 					<a-button type="primary" @click="table.refresh(true)">查询</a-button>
@@ -39,6 +40,8 @@
 			<template #bodyCell="{ column, record }">
 				<template v-if="column.dataIndex === 'action'">
 					<a-space>
+						<a @click="formRef.onOpen(record)">查看</a>
+						<a-divider type="vertical" v-if="hasPerm(['zbbzPlanBasicsDetailsEdit', 'zbbzPlanBasicsDetailsDelete'], 'and')" />
 						<a @click="formRef.onOpen(record)" v-if="hasPerm('zbbzPlanBasicsDetailsEdit')">编辑</a>
 						<a-divider type="vertical" v-if="hasPerm(['zbbzPlanBasicsDetailsEdit', 'zbbzPlanBasicsDetailsDelete'], 'and')" />
 						<a-popconfirm title="确定要删除吗？" @confirm="deleteZbbzPlanBasicsDetails(record)">
@@ -55,10 +58,20 @@
 <script setup name="planbasicsdetails">
 	import Form from './form.vue'
 	import zbbzPlanBasicsDetailsApi from '@/api/biz/zbbzPlanBasicsDetailsApi'
+	import zbbzPlanEquApi from '@/api/biz/zbbzPlanEquApi'
 	let searchFormState = reactive({})
 	const searchFormRef = ref()
 	const table = ref()
 	const formRef = ref()
+	const visible = ref(false);
+	const showModal = (record) => {
+		console.log(record)
+		zbbzPlanEquApi.findeqyByPlanId(record.id).then(res => {
+			console.log(res)
+			dataSource.value = res.data
+		})
+      visible.value = true;
+    };
 	const toolConfig = { refresh: true, height: true, columnSetting: true, striped: false }
 	const columns = [
 		{
@@ -84,9 +97,36 @@
 			title: '操作',
 			dataIndex: 'action',
 			align: 'center',
-			width: '150px'
+			width: '250px'
 		})
 	}
+	const tableColumns =[
+	{
+		title: '姓名',
+		dataIndex: 'name',
+		key: 'name',
+	},
+	{
+		title: '型号',
+		dataIndex: 'model',
+		key: 'model',
+	},
+	{
+		title: '所在位置',
+		dataIndex: 'location',
+		key: 'location',
+	},
+	{
+		title: '剩余寿命',
+		dataIndex: 'residueLifetime',
+		key: 'residueLifetime',
+	},
+	{
+		title: '占用状态',
+		dataIndex: 'status',
+		key: 'status',
+	},
+];
 	const selectedRowKeys = ref([])
 	// 列表选择配置
 	const options = {

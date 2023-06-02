@@ -36,5 +36,9 @@ export default {
 	// 根据分类id获取对应的装备
 	findEquByCategory(data) {
 		return request('findEquByCategory', data, 'get')
+	},
+	// 根据计划id获取对应的装备
+	findeqyByPlanId(data){
+		return request('findeqyByPlanId', data, 'get')
 	}
 }

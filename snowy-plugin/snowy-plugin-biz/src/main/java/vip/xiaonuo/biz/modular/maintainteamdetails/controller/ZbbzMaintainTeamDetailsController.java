@@ -128,4 +128,12 @@ public class ZbbzMaintainTeamDetailsController {
     public CommonResult<ZbbzMaintainTeamDetails> detail(@Valid ZbbzMaintainTeamDetailsIdParam zbbzMaintainTeamDetailsIdParam) {
         return CommonResult.data(zbbzMaintainTeamDetailsService.detail(zbbzMaintainTeamDetailsIdParam));
     }
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取维修团队名称")
+    @SaCheckPermission("/biz/maintainteamdetails/findmainNameList")
+    @GetMapping("/biz/maintainteamdetails/findmainNameList")
+    public CommonResult findmainNameList() {
+        return CommonResult.data(zbbzMaintainTeamDetailsService.findmainNameList());
+    }
+
 }

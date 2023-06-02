@@ -29,6 +29,10 @@
 						<template #icon><plus-outlined /></template>
 						新增
 					</a-button>
+					<a-button type="primary" @click="formRef.onOpen()">
+						<template #icon><plus-outlined /></template>
+						导入
+					</a-button>
 					<xn-batch-delete
 						v-if="hasPerm('zbbzMaintainTeamDetailsBatchDelete')"
 						:selectedRowKeys="selectedRowKeys"

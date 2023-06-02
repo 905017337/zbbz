@@ -21,17 +21,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.planequ.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
 import vip.xiaonuo.biz.modular.planequ.mapper.ZbbzPlanEquMapper;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquEditParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquIdParam;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquPageParam;
 import vip.xiaonuo.biz.modular.planequ.service.ZbbzPlanEquService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,6 +41,9 @@ import java.util.List;
 @Service
 public class ZbbzPlanEquServiceImpl extends ServiceImpl<ZbbzPlanEquMapper, ZbbzPlanEqu> implements ZbbzPlanEquService {
 
+
+    @Resource
+    private ZbbzPlanEquMapper zbbzPlanEquMapper;
     @Override
     public Page<ZbbzPlanEqu> page(ZbbzPlanEquPageParam zbbzPlanEquPageParam) {
         QueryWrapper<ZbbzPlanEqu> queryWrapper = new QueryWrapper<>();
@@ -102,5 +103,12 @@ public class ZbbzPlanEquServiceImpl extends ServiceImpl<ZbbzPlanEquMapper, ZbbzP
             throw new CommonException("任务装备配置不存在，id值为：{}", id);
         }
         return zbbzPlanEqu;
+    }
+
+    @Override
+    public List<ZbbzPlanEqu> findeqyByPlanId(ZbbzEquByPlanIdParam zbbzEquByPlanIdParam) {
+        QueryWrapper<ZbbzPlanEqu> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(ZbbzPlanEqu::getPlanId,zbbzEquByPlanIdParam.getPlanId());
+        return  zbbzPlanEquMapper.selectList(wrapper);
     }
 }

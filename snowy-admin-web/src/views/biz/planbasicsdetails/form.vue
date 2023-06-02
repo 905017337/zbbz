@@ -76,11 +76,13 @@ const submitLoading = ref(false)
 const SHOW_PARENT = TreeSelect.SHOW_ALL
 // 打开抽屉
 const onOpen = (record) => {
+	console.log(record)
 	visible.value = true
 	if (record) {
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
 	}
+	console.log("获取装备配置")
 }
 // 关闭抽屉
 const onClose = () => {
@@ -99,6 +101,7 @@ const formRules = {
 const onSubmit = () => {
 	formRef.value.validate().then(() => {
 		submitLoading.value = true
+		formData.value.zbbzEquBasicsDetailsParamList = tableSelect
 		const formDataParam = cloneDeep(formData.value)
 		zbbzPlanBasicsDetailsApi
 			.zbbzPlanBasicsDetailsSubmitForm(formDataParam, !formDataParam.id)
@@ -133,7 +136,6 @@ const treeSelect = (selectedKeysValue, info) => {
 	if(ids.length==0){
 		return
 	}
-	console.log('ids', ids)
 	let equByIdsParam = {
 		ids: ids,
 	}
@@ -142,48 +144,32 @@ const treeSelect = (selectedKeysValue, info) => {
 	})
 	selectedKeys.value = selectedKeysValue
 };
-//获取tee取消时的值
-const onCheck = (checkedKeysValue) => {
-	console.log('onCheck', checkedKeysValue);
-	checkedKeys.value = checkedKeysValue
-};
 
-
-const value = ref();
 const treeData = []
 const loadData = () => {
 	zbbzEquCategoryApi.categoryTree().then((res) => {
 		treeData.push(res)
 	})
 }
-//获取装备分类
-const treeOnChangeData=()=>{
-	console.log(value.value)
 
-}
 //获取装备
 const tableOnChangeData = (res) => {
 	console.log(res)
 }
 const dataSource = ref([])
-const onChangeData=(value, label, extra)=>{
-  console.log(value); //分类id
-  console.log(label); //分类名称
-  //获取分类对应的装备
-  const ZbbzEquAndCatewayParam = {"catewayId":value}
-//   zbbzEquCategoryApi.findEquByCategory(ZbbzEquAndCatewayParam).then((res)=>{
+// const onChangeData=(value, label, extra)=>{
+//   console.log(value); //分类id
+//   console.log(label); //分类名称
 
-//   })
-
-}
+// }
+const tableSelect =ref([])
 //获取表格选中的数据
 const rowSelection = {
 	//选择后加入对应任务中
 	onChange: (selectedRowKeys, selectedRows) => {
-		console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-	// 	zbbzPlanEquApi.updatePlanEqu(selectedRows).then((res)=>{
-	// 	console.log(res)
-	// })
+		// console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+		tableSelect.value=selectedRows
+
 	},
 	
 	getCheckboxProps: (record) => ({
@@ -192,7 +178,7 @@ const rowSelection = {
 	}),
 };
 
-
+// table表头数据
 const columns =[
 	{
 		title: '姓名',
