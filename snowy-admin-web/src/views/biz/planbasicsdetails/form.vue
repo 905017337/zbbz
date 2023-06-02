@@ -35,10 +35,12 @@
 			 <a-row type="flex">
 				<a-col :span="6" >
 					<a-tree
-						v-model:expandedKeys="expandedKeys"
+						v-if="treeData.length"
 						v-model:selectedKeys="selectedKeys"
 						v-model:checkedKeys="checkedKeys"
 						checkable
+						:defaultExpandAll="true" 
+						:default-selected-keys="treeCurrentKey" 默认高亮显示指定树节点
 						@check="treeSelect"
 						:tree-data="treeData"
 					>
@@ -77,7 +79,7 @@ const SHOW_PARENT = TreeSelect.SHOW_ALL
 //树形数据
 const expandedKeys = ref();
 const selectedKeys = ref();
-const checkedKeys = ref<String>(["10101","10301"]);
+const checkedKeys = ref([]);
 
 //格式化后端返回的树形数据
 const dealTreeData=(treeData)=>{
@@ -92,8 +94,8 @@ const dealTreeData=(treeData)=>{
 // 打开抽屉
 const onOpen = (record) => {
 	visible.value = true
-	// checkedKeys.value = record.treeSelect
-	// console.log(checkedKeys);
+	checkedKeys.value = record.treeSelect
+	dataSource.value = record.zbbzEquBasicsDetailsParamList
 	if (record) {
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
