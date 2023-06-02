@@ -29,17 +29,12 @@ import java.util.List;
 @Setter
 public class ZbbzEquCategoryDto {
 
-    /** 主键 */
     private String id;
 
-    /** 类型名称 */
-    @ApiModelProperty(value = "类型名称", position = 2)
     private String title;
 
-    private String value;
+    private String key;
 
-    /** 父节点id */
-    @ApiModelProperty(value = "父节点id", position = 3)
     private String parentId;
 
     private List<ZbbzEquCategoryDto> children;

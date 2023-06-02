@@ -135,7 +135,7 @@ public class ZbbzEquCategoryController {
 
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取装备树对应的武器")
-    @SaCheckPermission("/biz/equcategory/categoryTree")
+    @SaCheckPermission("/biz/equcategory/findEquByCategory")
     @PostMapping("/biz/equcategory/findEquByCategory")
     public CommonResult findEquByCategory(@RequestBody equByIdsParam param){
         final List<String> ids = Arrays.stream(param.getIds()).collect(Collectors.toList());

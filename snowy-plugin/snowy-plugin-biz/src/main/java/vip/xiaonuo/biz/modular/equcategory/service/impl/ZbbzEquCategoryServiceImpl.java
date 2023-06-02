@@ -123,7 +123,7 @@ public class ZbbzEquCategoryServiceImpl extends ServiceImpl<ZbbzEquCategoryMappe
             ZbbzEquCategoryDto dto = new ZbbzEquCategoryDto();
             BeanUtil.copyProperties(zbbzEquCategory,dto);
             dto.setTitle(zbbzEquCategory.getName());
-            dto.setValue(zbbzEquCategory.getId());
+            dto.setKey(zbbzEquCategory.getId());
             catewayTree.add(dto);
         }
         return catewayTree.stream().filter(tree -> "0".equals(tree.getParentId())).peek(
