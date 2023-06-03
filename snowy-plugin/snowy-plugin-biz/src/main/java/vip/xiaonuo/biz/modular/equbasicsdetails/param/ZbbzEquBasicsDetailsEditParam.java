@@ -58,7 +58,7 @@ public class ZbbzEquBasicsDetailsEditParam {
 
     /** 入库时间 */
     @ApiModelProperty(value = "入库时间", position = 7)
-    private Date exportTime;
+    private Date exportDate;
 
     /** 分类id */
     @ApiModelProperty(value = "分类id", position = 10)

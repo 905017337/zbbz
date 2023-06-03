@@ -58,4 +58,7 @@ public class ZbbzEquComponentDetails {
     /** 父id */
     @ApiModelProperty(value = "分类id", position = 7)
     private String categoryId;
+
+    @ApiModelProperty(value = "装备id",position = 8)
+    private String equId;
 }

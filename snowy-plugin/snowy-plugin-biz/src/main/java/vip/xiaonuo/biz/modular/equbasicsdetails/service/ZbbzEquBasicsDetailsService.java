@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.equbasicsdetails.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsAddParam;
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsEditParam;
@@ -36,7 +37,7 @@ public interface ZbbzEquBasicsDetailsService extends IService<ZbbzEquBasicsDetai
      * @author czh
      * @date  2023/06/01 12:51
      */
-    Page<ZbbzEquBasicsDetails> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam);
+    Page<ZbbzEquBasicsDetailsDto> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam);
 
     /**
      * 添加基础信息

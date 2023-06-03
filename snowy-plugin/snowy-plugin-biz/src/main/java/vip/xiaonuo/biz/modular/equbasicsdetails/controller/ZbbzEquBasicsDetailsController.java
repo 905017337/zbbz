@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +63,7 @@ public class ZbbzEquBasicsDetailsController {
     @ApiOperation("获取基础信息分页")
     @SaCheckPermission("/biz/equbasicsdetails/page")
     @GetMapping("/biz/equbasicsdetails/page")
-    public CommonResult<Page<ZbbzEquBasicsDetails>> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
+    public CommonResult<Page<ZbbzEquBasicsDetailsDto>> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
         return CommonResult.data(zbbzEquBasicsDetailsService.page(zbbzEquBasicsDetailsPageParam));
     }
 

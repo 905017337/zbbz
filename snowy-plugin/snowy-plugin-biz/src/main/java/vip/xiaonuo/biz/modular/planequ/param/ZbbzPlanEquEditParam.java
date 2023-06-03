@@ -50,11 +50,11 @@ public class ZbbzPlanEquEditParam {
 
     /** 作战开始时间 */
     @ApiModelProperty(value = "作战开始时间", position = 5)
-    private Date startTime;
+    private Date startDate;
 
     /** 作战结束时间 */
     @ApiModelProperty(value = "作战结束时间", position = 6)
-    private Date endTime;
+    private Date endDate;
 
     /** 重要程度 */
     @ApiModelProperty(value = "重要程度", position = 7)

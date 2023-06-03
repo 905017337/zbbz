@@ -16,16 +16,21 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
+import vip.xiaonuo.biz.modular.equbasicsdetails.mapper.ZbbzEquBasicsDetailsMapper;
 import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.*;
 import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
 import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
 import vip.xiaonuo.biz.modular.planequ.mapper.ZbbzPlanEquMapper;
+import vip.xiaonuo.biz.modular.planlog.entity.ZbbzPlanLog;
+import vip.xiaonuo.biz.modular.planlog.service.ZbbzPlanLogService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -35,6 +40,7 @@ import vip.xiaonuo.biz.modular.planbasicsdetails.service.ZbbzPlanBasicsDetailsSe
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 作战任务Service接口实现类
@@ -47,6 +53,10 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
 
     @Resource
     ZbbzPlanEquMapper zbbzPlanEquMapper;
+    @Resource
+    ZbbzEquBasicsDetailsMapper zbbzEquBasicsDetailsMapper;
+    @Resource
+    ZbbzPlanLogService zbbzPlanLogService;
     @Override
     public Page<ZbbzPlanBasicsDetailsDto> page(ZbbzPlanBasicsDetailsPageParam zbbzPlanBasicsDetailsPageParam) {
         QueryWrapper<ZbbzPlanBasicsDetails> queryWrapper = new QueryWrapper<>();
@@ -66,7 +76,7 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         //任务选择的装备
         List<ZbbzPlanBasicsDetailsDto> arrayList1 = new ArrayList<>();
         //渲染装备分类树
-
+        //TODO 后续拆分 获取单条数据的时候查询对应的选择项目
         records.stream().forEach(e->{
             Set<String> treeSelect = new HashSet<>();
             ZbbzPlanBasicsDetailsDto planDto = new ZbbzPlanBasicsDetailsDto();
@@ -76,7 +86,10 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
             List<ZbbzPlanEqu> equList = zbbzPlanEquMapper.selectList(wrapper);
             ArrayList<ZbbzPlanEquDto> arrayList = new ArrayList<>();
             equList.stream().forEach(item->{
-                treeSelect.add(item.getEquId());
+                QueryWrapper<ZbbzEquBasicsDetails> equBasicsDetailsQueryWrapper = new QueryWrapper<>();
+                equBasicsDetailsQueryWrapper.lambda().eq(ZbbzEquBasicsDetails::getId,item.getEquId());
+                ZbbzEquBasicsDetails selectedOne = zbbzEquBasicsDetailsMapper.selectOne(equBasicsDetailsQueryWrapper);
+                treeSelect.add(selectedOne.getCategoryId());
                 ZbbzPlanEquDto dto = new ZbbzPlanEquDto();
                 BeanUtil.copyProperties(item,dto);
                 arrayList.add(dto);
@@ -97,8 +110,25 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = BeanUtil.toBean(zbbzPlanBasicsDetailsAddParam, ZbbzPlanBasicsDetails.class);
         this.save(zbbzPlanBasicsDetails);
         updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);
+        //保存日志
+        savePlanLog(zbbzPlanBasicsDetailsAddParam,"add");
     }
-
+    void savePlanLog(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam,String operation){
+        ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = BeanUtil.toBean(zbbzPlanBasicsDetailsAddParam, ZbbzPlanBasicsDetails.class);
+        ZbbzPlanLog log = new ZbbzPlanLog();
+        log.setPlanId(zbbzPlanBasicsDetails.getId());
+        log.setLocation(zbbzPlanBasicsDetails.getLocation());
+        log.setStartDate(zbbzPlanBasicsDetails.getStartDate());
+        log.setEndDate(zbbzPlanBasicsDetails.getEndDate());
+        log.setPlanName(zbbzPlanBasicsDetails.getName());
+        final List<String> collect = zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList()
+                .stream().map(ZbbzEquBasicsDetailsParam::getEquId)
+                .collect(Collectors.toList());
+        final String ids = JSON.toJSONString(collect);
+        log.setEquIds(ids);
+        log.setOperation(operation);
+        zbbzPlanLogService.save(log);
+    }
     public void updatePlanEquByPlanId(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam){
         zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList().stream().forEach(e->{
             ZbbzPlanEqu planEqu = new ZbbzPlanEqu();
@@ -106,6 +136,8 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
             planEqu.setName(e.getName());
             planEqu.setModel(e.getModel());
             zbbzPlanEquMapper.insert(planEqu);
+            //修改日志
+            savePlanLog(zbbzPlanBasicsDetailsAddParam,"edit");
         });
     }
     @Transactional(rollbackFor = Exception.class)

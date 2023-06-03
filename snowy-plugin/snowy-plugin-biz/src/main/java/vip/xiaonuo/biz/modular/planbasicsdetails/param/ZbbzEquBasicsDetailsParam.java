@@ -33,7 +33,8 @@ import java.util.Date;
 public class ZbbzEquBasicsDetailsParam {
 
     /** 主键 */
-
+    @ApiModelProperty(value = "装备id")
+    private String equId;
     /** 装备名称 */
     @ApiModelProperty(value = "装备名称")
     private String name;
@@ -56,7 +57,7 @@ public class ZbbzEquBasicsDetailsParam {
 
     /** 入库时间 */
     @ApiModelProperty(value = "入库时间")
-    private Date exportTime;
+    private Date exportDate;
 
 
 }

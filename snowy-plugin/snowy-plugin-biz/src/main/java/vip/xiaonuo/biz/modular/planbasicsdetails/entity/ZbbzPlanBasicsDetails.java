@@ -41,11 +41,11 @@ public class ZbbzPlanBasicsDetails {
 
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间", position = 3)
-    private Date startTime;
+    private Date startDate;
 
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间", position = 4)
-    private Date endTime;
+    private Date endDate;
 
     /** 作战位置 */
     @ApiModelProperty(value = "作战位置", position = 5)

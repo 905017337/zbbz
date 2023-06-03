@@ -19,20 +19,20 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
+import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsAddParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsEditParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsIdParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsPageParam;
 import vip.xiaonuo.biz.modular.equcomponentdetails.service.ZbbzEquComponentDetailsService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,6 +44,8 @@ import java.util.List;
 @Service
 public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquComponentDetailsMapper, ZbbzEquComponentDetails> implements ZbbzEquComponentDetailsService {
 
+    @Resource
+    ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
     @Override
     public Page<ZbbzEquComponentDetails> page(ZbbzEquComponentDetailsPageParam zbbzEquComponentDetailsPageParam) {
         QueryWrapper<ZbbzEquComponentDetails> queryWrapper = new QueryWrapper<>();
@@ -106,5 +108,14 @@ public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquCompo
             throw new CommonException("装备零部件不存在，id值为：{}", id);
         }
         return zbbzEquComponentDetails;
+    }
+
+    @Override
+    public List<ZbbzEquComponentDetails> findComponentAll(ZbbzEquComponentDetailsNameParam zbbzEquComponentDetailsIdParam) {
+        QueryWrapper<ZbbzEquComponentDetails> wrapper = new QueryWrapper<>();
+        if(StringUtils.isNotEmpty(zbbzEquComponentDetailsIdParam.getName())){
+            wrapper.lambda().eq(ZbbzEquComponentDetails::getName,zbbzEquComponentDetailsIdParam.getName());
+        }
+        return zbbzEquComponentDetailsMapper.selectList(wrapper);
     }
 }

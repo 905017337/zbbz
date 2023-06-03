@@ -21,6 +21,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
+import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
+import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
+import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,6 +36,8 @@ import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsIdPara
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsPageParam;
 import vip.xiaonuo.biz.modular.equbasicsdetails.service.ZbbzEquBasicsDetailsService;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,8 +49,10 @@ import java.util.List;
 @Service
 public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDetailsMapper, ZbbzEquBasicsDetails> implements ZbbzEquBasicsDetailsService {
 
+    @Resource
+    ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
     @Override
-    public Page<ZbbzEquBasicsDetails> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
+    public Page<ZbbzEquBasicsDetailsDto> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
         QueryWrapper<ZbbzEquBasicsDetails> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(zbbzEquBasicsDetailsPageParam.getName())) {
             queryWrapper.lambda().like(ZbbzEquBasicsDetails::getName, zbbzEquBasicsDetailsPageParam.getName());
@@ -77,7 +85,21 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
             if("0".equals(status)) e.setStatus("空闲");
             if("1".equals(status)) e.setStatus("占用");
         });
-        return detailsPage.setRecords(detailsList);
+        Page<ZbbzEquBasicsDetailsDto> result = new Page<>();
+        ArrayList<ZbbzEquBasicsDetailsDto> arrayList = new ArrayList<>();
+        List<ZbbzEquBasicsDetails> records = detailsPage.setRecords(detailsList).getRecords();
+        records.stream().forEach(e->{
+            ZbbzEquBasicsDetailsDto dto = new ZbbzEquBasicsDetailsDto();
+            QueryWrapper<ZbbzEquComponentDetails> qw = new QueryWrapper<>();
+            qw.lambda().eq(ZbbzEquComponentDetails::getEquId,e.getId());
+            List<ZbbzEquComponentDetails> selectedList = zbbzEquComponentDetailsMapper.selectList(qw);
+            BeanUtil.copyProperties(e,dto);
+            dto.setZbbzEquComponentDetailsList(selectedList);
+            arrayList.add(dto);
+        });
+        BeanUtil.copyProperties(detailsPage,result);
+        result.setRecords(arrayList);
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)

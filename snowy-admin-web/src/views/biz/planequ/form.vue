@@ -24,13 +24,13 @@
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-					<a-form-item label="作战开始时间：" name="startTime">
-						<a-date-picker v-model:value="formData.startTime" value-format="YYYY-MM-DD HH:mm:ss" show-time placeholder="请选择作战开始时间" style="width: 100%" />
+					<a-form-item label="作战开始时间：" name="startDate">
+						<a-date-picker v-model:value="formData.startDate" value-format="YYYY-MM-DD HH:mm:ss" show-time placeholder="请选择作战开始时间" style="width: 100%" />
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-					<a-form-item label="作战结束时间：" name="endTime">
-						<a-date-picker v-model:value="formData.endTime" value-format="YYYY-MM-DD HH:mm:ss" show-time placeholder="请选择作战结束时间" style="width: 100%" />
+					<a-form-item label="作战结束时间：" name="endDate">
+						<a-date-picker v-model:value="formData.endDate" value-format="YYYY-MM-DD HH:mm:ss" show-time placeholder="请选择作战结束时间" style="width: 100%" />
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">

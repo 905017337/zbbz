@@ -42,10 +42,10 @@ public class ZbbzPlanBasicsDetailsDto {
     private String name;
 
     /** 开始时间 */
-    private Date startTime;
+    private Date startDate;
 
     /** 结束时间 */
-    private Date endTime;
+    private Date endDate;
 
     /** 作战位置 */
     private String location;

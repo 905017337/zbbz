@@ -57,17 +57,17 @@ public class ZbbzEquBasicsDetails {
 
     /** 入库时间 */
     @ApiModelProperty(value = "入库时间", position = 7)
-    private Date exportTime;
+    private Date exportDate;
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间", position = 8)
     @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
+    private Date createDate;
 
     /** 更新时间 */
     @ApiModelProperty(value = "更新时间", position = 9)
     @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
+    private Date updateDate;
 
     /** 分类id */
     @ApiModelProperty(value = "分类id", position = 10)

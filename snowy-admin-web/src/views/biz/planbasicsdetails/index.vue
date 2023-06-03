@@ -76,19 +76,23 @@
 	const columns = [
 		{
 			title: '名称',
-			dataIndex: 'name'
+			dataIndex: 'name',
+			align: 'center',
 		},
 		{
 			title: '开始时间',
-			dataIndex: 'startTime'
+			dataIndex: 'startDate',
+			align: 'center',
 		},
 		{
 			title: '结束时间',
-			dataIndex: 'endTime'
+			dataIndex: 'endDate',
+			align: 'center',
 		},
 		{
 			title: '作战位置',
-			dataIndex: 'location'
+			dataIndex: 'location',
+			align: 'center',
 		},
 	]
 	// 操作栏通过权限判断是否显示
@@ -105,26 +109,31 @@
 		title: '姓名',
 		dataIndex: 'name',
 		key: 'name',
+		align: 'center',
 	},
 	{
 		title: '型号',
 		dataIndex: 'model',
 		key: 'model',
+		align: 'center',
 	},
 	{
 		title: '所在位置',
 		dataIndex: 'location',
 		key: 'location',
+		align: 'center',
 	},
 	{
 		title: '剩余寿命',
 		dataIndex: 'residueLifetime',
 		key: 'residueLifetime',
+		align: 'center',
 	},
 	{
 		title: '占用状态',
 		dataIndex: 'status',
 		key: 'status',
+		align: 'center',
 	},
 ];
 	const selectedRowKeys = ref([])

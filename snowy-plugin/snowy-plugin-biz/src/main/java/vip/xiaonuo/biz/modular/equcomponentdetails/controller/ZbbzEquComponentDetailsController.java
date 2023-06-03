@@ -23,19 +23,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsAddParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsEditParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsIdParam;
-import vip.xiaonuo.biz.modular.equcomponentdetails.param.ZbbzEquComponentDetailsPageParam;
 import vip.xiaonuo.biz.modular.equcomponentdetails.service.ZbbzEquComponentDetailsService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 装备零部件控制器
@@ -129,4 +127,11 @@ public class ZbbzEquComponentDetailsController {
         return CommonResult.data(zbbzEquComponentDetailsService.detail(zbbzEquComponentDetailsIdParam));
     }
 
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取零部件列表")
+    @SaCheckPermission("/biz/equcomponentdetails/findComponentAll")
+    @GetMapping("/biz/equcomponentdetails/findComponentAll")
+    public CommonResult<List<ZbbzEquComponentDetails>> findComponentAll(ZbbzEquComponentDetailsNameParam zbbzEquComponentDetailsIdParam) {
+        return CommonResult.data(zbbzEquComponentDetailsService.findComponentAll(zbbzEquComponentDetailsIdParam));
+    }
 }

@@ -107,7 +107,7 @@
 		},
 		{
 			title: '入库时间',
-			dataIndex: 'exportTime'
+			dataIndex: 'exportDate'
 		},
 	]
 	// 操作栏通过权限判断是否显示

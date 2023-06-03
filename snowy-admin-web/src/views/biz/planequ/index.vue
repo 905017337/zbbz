@@ -99,11 +99,11 @@
 		},
 		{
 			title: '作战开始时间',
-			dataIndex: 'startTime'
+			dataIndex: 'startDate'
 		},
 		{
 			title: '作战结束时间',
-			dataIndex: 'endTime'
+			dataIndex: 'endDate'
 		},
 		{
 			title: '重要程度',

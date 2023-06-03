@@ -40,13 +40,13 @@ public class ZbbzPlanBasicsDetailsAddParam {
 
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间", required = true, position = 3)
-    @NotNull(message = "startTime不能为空")
-    private Date startTime;
+    @NotNull(message = "startDate不能为空")
+    private Date startDate;
 
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间", required = true, position = 4)
-    @NotNull(message = "endTime不能为空")
-    private Date endTime;
+    @NotNull(message = "endDate不能为空")
+    private Date endDate;
 
     /** 作战位置 */
     @ApiModelProperty(value = "作战位置", required = true, position = 5)

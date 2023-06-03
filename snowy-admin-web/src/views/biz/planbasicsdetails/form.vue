@@ -12,14 +12,14 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="12">
-							<a-form-item label="开始时间：" name="startTime">
-								<a-date-picker v-model:value="formData.startTime" value-format="YYYY-MM-DD HH:mm:ss"
+							<a-form-item label="开始时间：" name="startDate">
+								<a-date-picker v-model:value="formData.startDate" value-format="YYYY-MM-DD HH:mm:ss"
 									show-time placeholder="请选择开始时间" style="width: 100%" />
 							</a-form-item>
 						</a-col>
 						<a-col :span="12">
-							<a-form-item label="结束时间：" name="endTime">
-								<a-date-picker v-model:value="formData.endTime" value-format="YYYY-MM-DD HH:mm:ss" show-time
+							<a-form-item label="结束时间：" name="endDate">
+								<a-date-picker v-model:value="formData.endDate" value-format="YYYY-MM-DD HH:mm:ss" show-time
 									placeholder="请选择结束时间" style="width: 100%" />
 							</a-form-item>
 						</a-col>
@@ -39,7 +39,7 @@
 						v-model:selectedKeys="selectedKeys"
 						v-model:checkedKeys="checkedKeys"
 						checkable
-						:defaultExpandAll="true" 
+						:defaultExpandAll="true"
 						:default-selected-keys="treeCurrentKey" 默认高亮显示指定树节点
 						@check="treeSelect"
 						:tree-data="treeData"
@@ -47,10 +47,30 @@
 					</a-tree>
 				</a-col>
 				<a-col :span="18" >
-					<a-table :row-selection="rowSelection"  rowKey="id" @change="tableOnChangeData" :dataSource="dataSource"  :columns="columns" />
+
+					<a-table
+					:row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+					rowKey="id"
+					:dataSource="dataSource"
+					:columns="columns">
+					<template #bodyCell="{ column, text, record }">
+						<template v-if="column.dataIndex === 'startDate'">
+							<a-space direction="vertical" :size="12">
+								<!-- <a-range-picker v-model:value="value1" :ranges="ranges" /> -->
+								<a-range-picker
+								v-model:value="value2"
+								style="width: 400px"
+								:ranges="ranges"
+								show-time
+								format="YYYY/MM/DD HH:mm:ss"
+								/>
+							</a-space>
+						</template>
+					</template>
+					</a-table>
 				</a-col>
 			</a-row>
-			
+
 		</a-tab-pane>
 		</a-tabs>
 
@@ -66,8 +86,6 @@ import { cloneDeep } from 'lodash-es'
 import { required } from '@/utils/formRules'
 import zbbzPlanBasicsDetailsApi from '@/api/biz/zbbzPlanBasicsDetailsApi'
 import zbbzEquCategoryApi from '@/api/biz/zbbzEquCategoryApi'
-import zbbzPlanEquApi from '@/api/biz/zbbzPlanEquApi'
-import { TreeSelect } from 'ant-design-vue';
 // 抽屉状态
 const visible = ref(false)
 const emit = defineEmits({ successful: null })
@@ -75,12 +93,21 @@ const formRef = ref()
 // 表单数据
 const formData = ref({})
 const submitLoading = ref(false)
-const SHOW_PARENT = TreeSelect.SHOW_ALL
 //树形数据
+const treeData = []
 const expandedKeys = ref();
-const selectedKeys = ref();
+const selectedKeys = ref([]);
 const checkedKeys = ref([]);
-
+//tree默认高光id
+const treeCurrentKey = ref(['101']);
+//tree默认选中的数据
+const selectedRowKeys = ref([])
+//table
+const dataSource = ref([])
+const tableSelect = ref([])
+const testvalue = ref('')
+const value1 = ref('')
+const value2 = ref('')
 //格式化后端返回的树形数据
 const dealTreeData=(treeData)=>{
 	const data=treeData.map(item=>({
@@ -91,11 +118,14 @@ const dealTreeData=(treeData)=>{
 	}))
 	return data
 }
+const selectTableDate = ref([])
 // 打开抽屉
 const onOpen = (record) => {
 	visible.value = true
 	checkedKeys.value = record.treeSelect
-	dataSource.value = record.zbbzEquBasicsDetailsParamList
+	selectTableDate.value = record.zbbzEquBasicsDetailsParamList
+	console.log(selectTableDate.value)
+	dataSource.value = selectTableDate.value
 	if (record) {
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
@@ -111,8 +141,8 @@ const onClose = () => {
 // 默认要校验的
 const formRules = {
 	name: [required('请输入名称')],
-	startTime: [required('请输入开始时间')],
-	endTime: [required('请输入结束时间')],
+	startDate: [required('请输入开始时间')],
+	endDate: [required('请输入结束时间')],
 	location: [required('请输入作战位置')],
 }
 // 验证并提交数据
@@ -132,98 +162,92 @@ const onSubmit = () => {
 			})
 	})
 };
+//监听tree数据变化
+watch(expandedKeys, () => {
+	console.log('expandedKeys', expandedKeys);
+});
+watch(selectedKeys, () => {
+	console.log('selectedKeys', selectedKeys.value);
+});
+watch(checkedKeys, () => {
+	console.log('checkedKeys', checkedKeys);
+});
 
-
-	watch(expandedKeys, () => {
-      console.log('expandedKeys', expandedKeys);
-    });
-    watch(selectedKeys, () => {
-		console.log('selectedKeys', selectedKeys.value);
-    });
-    watch(checkedKeys, () => {
-      console.log('checkedKeys', checkedKeys);
-	});
 const treeSelect = (selectedKeysValue, info) => {
-	let checkedNodes = info.checkedNodes
+	if (false == info.checked) {
+		return
+	}
+	let checkedNodes = info.node.dataRef.id
 	let ids = []
-	checkedNodes.forEach((item) => {
-		ids.push(item.id)
-	})
+	ids.push(checkedNodes)
 	if(ids.length==0){
 		return
 	}
 	let equByIdsParam = {
 		ids: ids,
 	}
-	zbbzEquCategoryApi.findEquByCategory(equByIdsParam).then((res)=>{
+	//获取到所有的资源
+	zbbzEquCategoryApi.findEquByCategory(equByIdsParam).then((res) => {
+		//比较res数据中selectTableDate中的数据，如果有相同的设置table的选中状态
+		let tempSelectTableDate = cloneDeep(selectTableDate.value)
+		let tempRes = cloneDeep(res)
+		let tempdate = []
+		tempSelectTableDate.forEach((item) => {
+			tempRes.forEach((item2) => {
+				if (item.equId == item2.id) {
+					tempdate.push(item2.id)
+				}
+			})
+		})
+		selectedRowKeys.value = tempdate
 		dataSource.value=res
 	})
 	selectedKeys.value = selectedKeysValue
 };
+//判断tree勾选时是选中还是取消
+const treeCheck = (checkedKeysValue, info) => {
+	checkedKeys.value = checkedKeysValue
+};
 
-const treeData = []
 const loadData = () => {
 	zbbzEquCategoryApi.categoryTree().then((res) => {
-		// console.log(res);
-		// let tempTree = dealTreeData(res);
 		treeData.push(res)
-		console.log(treeData);
 	})
 }
 
-//获取装备
-const tableOnChangeData = (res) => {
-	console.log(res)
+//获取表格中选中的数据
+const onSelectChange = (selectedRowKeysValue, selectedRows) => {
+	selectedRowKeys.value = selectedRowKeysValue
+	tableSelect.value = selectedRows
 }
-const dataSource = ref([])
-// const onChangeData=(value, label, extra)=>{
-//   console.log(value); //分类id
-//   console.log(label); //分类名称
-
-// }
-const tableSelect =ref([])
-//获取表格选中的数据
-const rowSelection = {
-	//选择后加入对应任务中
-	onChange: (selectedRowKeys, selectedRows) => {
-		// console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-		tableSelect.value=selectedRows
-
-	},
-	
-	getCheckboxProps: (record) => ({
-		disabled: record.name === 'Disabled User', // Column configuration not to be checked
-		name: record.name,
-	}),
-};
 
 // table表头数据
 const columns =[
 	{
-		title: '姓名',
+		title: '名称',
 		dataIndex: 'name',
 		key: 'name',
+		align: 'center',
 	},
 	{
 		title: '型号',
 		dataIndex: 'model',
 		key: 'model',
+		align: 'center',
 	},
 	{
 		title: '所在位置',
 		dataIndex: 'location',
 		key: 'location',
+		align: 'center',
 	},
 	{
-		title: '剩余寿命',
-		dataIndex: 'residueLifetime',
-		key: 'residueLifetime',
+		title: '开始时间',
+		dataIndex: 'startDate',
+		key: 'startDate',
+		align: 'center',
 	},
-	{
-		title: '占用状态',
-		dataIndex: 'status',
-		key: 'status',
-	},
+
 ];
 
 loadData();
