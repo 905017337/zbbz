@@ -50,4 +50,16 @@ public class ZbbzMaintainTeamDetails {
     /** 移动效率 */
     @ApiModelProperty(value = "移动效率", position = 5)
     private String actionCapacity;
+
+    /** 维修开始时间 */
+    @ApiModelProperty(value = "维修开始时间",position = 6)
+    private Date maintainStartDate;
+
+    /** 维修结束时间 */
+    @ApiModelProperty(value = "维修结束时间",position = 7)
+    private Date maintainendDate;
+
+    /** 维修占用状态 */
+    @ApiModelProperty(value = "维修占用状态",position = 8)
+    private int status;
 }

@@ -99,11 +99,28 @@
 		},
 		{
 			title: '剩余寿命',
-			dataIndex: 'residueLifetime'
+			dataIndex: 'residueLifetime',
+			customRender: ({ text }) => {
+				if (text == '4') {
+					return '新品'
+				} else if (text == '3') {
+					return '勘用'
+				} else if (text == '2') {
+					return '待修'
+				} else if (text == '1') {
+					return '报废'
+				}else{
+					return '未知'
+				}
+			}
+			
 		},
 		{
 			title: '使用情况',
-			dataIndex: 'status'
+			dataIndex: 'status',
+			customRender: ({ text }) => {
+				return text === 1 ? '使用中' : '空闲'
+			}
 		},
 		{
 			title: '入库时间',

@@ -10,55 +10,39 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.planequ.param;
+package vip.xiaonuo.biz.modular.planbasicsdetails.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 任务装备配置添加参数
+ * 作战任务添加参数
  *
  * @author czh
- * @date  2023/06/01 12:42
+ * @date  2023/06/01 12:40
  **/
 @Getter
 @Setter
-public class ZbbzPlanEquAddParam {
+public class ZbbzPlanBasicsDetailsImportParam {
 
-    @ApiModelProperty(value = "装备id",position = 1)
-    private String id;
     /** 名称 */
-    @ApiModelProperty(value = "名称", position = 2)
     private String name;
 
-    /** 型号 */
-    @ApiModelProperty(value = "型号", position = 3)
-    private String model;
-
-    /** 剩余寿命 */
-    @ApiModelProperty(value = "剩余寿命", position = 4)
-    private String residueLifetime;
-
-    /** 作战开始时间 */
-    @ApiModelProperty(value = "作战开始时间", position = 5)
+    /** 开始时间 */
     private Date startDate;
 
-    /** 作战结束时间 */
-    @ApiModelProperty(value = "作战结束时间", position = 6)
+    /** 结束时间 */
     private Date endDate;
 
-    /** 重要程度 */
-    @ApiModelProperty(value = "重要程度", position = 7)
-    private String weight;
+    /** 作战位置 */
+    private String location;
 
-    /** 计划id */
-    @ApiModelProperty(value = "计划id", position = 8)
-    private String planId;
 
 }

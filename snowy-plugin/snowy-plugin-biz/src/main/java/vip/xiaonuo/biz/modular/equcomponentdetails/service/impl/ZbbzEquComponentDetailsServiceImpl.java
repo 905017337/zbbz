@@ -24,6 +24,7 @@ import org.apache.poi.util.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
+import vip.xiaonuo.biz.modular.equcomponentdetails.dto.ZbbzEquComponentDetailsDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetail
 import vip.xiaonuo.biz.modular.equcomponentdetails.service.ZbbzEquComponentDetailsService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,11 +67,12 @@ public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquCompo
         Page<ZbbzEquComponentDetails> detailsPage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<ZbbzEquComponentDetails> detailsList = detailsPage.getRecords();
         detailsList.stream().forEach(e->{
+//            //TODO  枚举待添加
             String residueLifetime = e.getResidueLifetime();
-            if("0".equals(residueLifetime)) e.setResidueLifetime("新品");
-            if("1".equals(residueLifetime)) e.setResidueLifetime("堪用");
+            if("4".equals(residueLifetime)) e.setResidueLifetime("新品");
+            if("3".equals(residueLifetime)) e.setResidueLifetime("堪用");
             if("2".equals(residueLifetime)) e.setResidueLifetime("待修");
-            if("3".equals(residueLifetime)) e.setResidueLifetime("损毁");
+            if("1".equals(residueLifetime)) e.setResidueLifetime("损毁");
         });
         return detailsPage.setRecords(detailsList);
     }
@@ -117,5 +120,49 @@ public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquCompo
             wrapper.lambda().eq(ZbbzEquComponentDetails::getName,zbbzEquComponentDetailsIdParam.getName());
         }
         return zbbzEquComponentDetailsMapper.selectList(wrapper);
+    }
+
+    @Override
+    public void addComponentForm(ZbbzEquComponentDetailsPlanParam zbbzEquComponentDetailsPlanParam) {
+        ZbbzEquComponentDetails details = new ZbbzEquComponentDetails();
+        details.setName(zbbzEquComponentDetailsPlanParam.getName());
+        details.setModel(zbbzEquComponentDetailsPlanParam.getModel());
+        details.setEquDesc(zbbzEquComponentDetailsPlanParam.getEquDesc());
+        details.setEquId(zbbzEquComponentDetailsPlanParam.getEquId());
+        //TODO 默认新配件为5 后续添加枚举
+        details.setResidueLifetime("4");
+        details.setIId(zbbzEquComponentDetailsPlanParam.getIId());
+        zbbzEquComponentDetailsMapper.insert(details);
+    }
+
+    @Override
+    public List<ZbbzEquComponentDetailsDto> findComponentByPlanId(String equId) {
+        QueryWrapper<ZbbzEquComponentDetails> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(ZbbzEquComponentDetails::getEquId,equId);
+        ArrayList<ZbbzEquComponentDetailsDto> list = new ArrayList<>();
+        zbbzEquComponentDetailsMapper.selectList(queryWrapper).forEach(e->{
+            final ZbbzEquComponentDetailsDto dto = new ZbbzEquComponentDetailsDto();
+            dto.setEquId(e.getEquId());
+            dto.setModel(e.getModel());
+            dto.setEquDesc(e.getEquDesc());
+            dto.setIId(e.getIId());
+            dto.setName(e.getName());
+            //TODO 添加枚举
+            if(StringUtils.isNotEmpty(e.getResidueLifetime())&&"4".equals(e.getResidueLifetime())){
+                dto.setResidueLifetime("新品");
+            }
+            if(StringUtils.isNotEmpty(e.getResidueLifetime())&&"3".equals(e.getResidueLifetime())){
+                dto.setResidueLifetime("勘用");
+            }
+            if(StringUtils.isNotEmpty(e.getResidueLifetime())&&"2".equals(e.getResidueLifetime())){
+                dto.setResidueLifetime("待修");
+            }
+            if(StringUtils.isNotEmpty(e.getResidueLifetime())&&"1".equals(e.getResidueLifetime())){
+                dto.setResidueLifetime("报废");
+            }
+
+            list.add(dto);
+        });
+        return list;
     }
 }

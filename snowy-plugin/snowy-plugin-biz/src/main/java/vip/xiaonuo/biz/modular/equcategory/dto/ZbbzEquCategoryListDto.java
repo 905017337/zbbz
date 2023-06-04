@@ -10,46 +10,30 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.planbasicsdetails.dto;
+package vip.xiaonuo.biz.modular.equcategory.dto;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
- * 作战任务实体
+ * 装备分类实体
  *
  * @author czh
- * @date  2023/06/01 12:40
+ * @date  2023/06/01 09:45
  **/
 @Getter
 @Setter
-public class ZbbzPlanBasicsDetailsDto {
+public class ZbbzEquCategoryListDto {
 
-    /** 主键 */
-    @TableId
     private String id;
 
-    /** 名称 */
-    private String name;
+    private String label;
 
-    /** 开始时间 */
-    private Date startDate;
+    private String value;
 
-    /** 结束时间 */
-    private Date endDate;
+    private String parentId;
 
-    /** 作战位置 */
-    private String location;
-    /** 选择的装备 */
-    private List<ZbbzPlanEquDto> zbbzEquBasicsDetailsParamList;
-
-    private String[] treeSelect;
+    private Object[] children;
 }

@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.equcomponentdetails.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.equcomponentdetails.dto.ZbbzEquComponentDetailsDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 
@@ -76,4 +77,8 @@ public interface ZbbzEquComponentDetailsService extends IService<ZbbzEquComponen
     ZbbzEquComponentDetails queryEntity(String id);
 
     List<ZbbzEquComponentDetails> findComponentAll(ZbbzEquComponentDetailsNameParam zbbzEquComponentDetailsIdParam);
+
+    void addComponentForm(ZbbzEquComponentDetailsPlanParam zbbzEquComponentDetailsPlanParam);
+
+    List<ZbbzEquComponentDetailsDto> findComponentByPlanId(String equId);
 }

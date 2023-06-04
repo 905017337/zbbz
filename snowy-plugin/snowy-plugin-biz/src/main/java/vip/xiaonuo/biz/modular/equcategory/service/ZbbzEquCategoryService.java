@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryDto;
+import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryListDto;
 import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
 import vip.xiaonuo.biz.modular.equcategory.param.*;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
@@ -81,4 +82,6 @@ public interface ZbbzEquCategoryService extends IService<ZbbzEquCategory> {
     ZbbzEquCategoryDto categoryTree();
 
     List<ZbbzEquBasicsDetails> findEquByCategory(List<String> ids);
+
+    Object[] categoryTreeList();
 }

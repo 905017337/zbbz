@@ -62,6 +62,6 @@ public class ZbbzEquBasicsDetailsEditParam {
 
     /** 分类id */
     @ApiModelProperty(value = "分类id", position = 10)
-    private String categoryId;
+    private String[] categoryId;
 
 }

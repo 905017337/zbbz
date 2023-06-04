@@ -206,7 +206,7 @@
 			width: '220px'
 		}
 	]
-	const statusData = tool.dictList('COMMON_STATUS')
+	const statusData = tool.dictList('COMMON_STATUS') //字典值
 	const searchFormRef = ref()
 	let defaultExpandedKeys = ref([])
 	let searchFormState = reactive({})

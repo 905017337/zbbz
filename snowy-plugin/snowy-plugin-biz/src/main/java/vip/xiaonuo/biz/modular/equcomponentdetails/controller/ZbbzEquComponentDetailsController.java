@@ -19,10 +19,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -133,5 +130,20 @@ public class ZbbzEquComponentDetailsController {
     @GetMapping("/biz/equcomponentdetails/findComponentAll")
     public CommonResult<List<ZbbzEquComponentDetails>> findComponentAll(ZbbzEquComponentDetailsNameParam zbbzEquComponentDetailsIdParam) {
         return CommonResult.data(zbbzEquComponentDetailsService.findComponentAll(zbbzEquComponentDetailsIdParam));
+    }
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("装备页面添加零部件信息")
+    @SaCheckPermission("/biz/equcomponentdetails/addComponentForm")
+    @PostMapping("/biz/equcomponentdetails/addComponentForm")
+    public CommonResult addComponentForm(@RequestBody ZbbzEquComponentDetailsPlanParam zbbzEquComponentDetailsPlanParam) {
+        zbbzEquComponentDetailsService.addComponentForm(zbbzEquComponentDetailsPlanParam);
+        return CommonResult.ok();
+    }
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取装备对应的零部件信息")
+    @SaCheckPermission("/biz/equcomponentdetails/findComponentByPlanId")
+    @GetMapping("/biz/equcomponentdetails/findComponentByPlanId")
+    public CommonResult findComponentByPlanId(@RequestParam(value = "equId") String equId){
+        return CommonResult.data(zbbzEquComponentDetailsService.findComponentByPlanId(equId));
     }
 }

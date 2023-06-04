@@ -10,46 +10,25 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.planbasicsdetails.dto;
+package vip.xiaonuo.biz.modular.equcomponentdetails.param;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import javax.validation.constraints.NotBlank;
 
 /**
- * 作战任务实体
+ * 装备零部件添加参数
  *
  * @author czh
- * @date  2023/06/01 12:40
+ * @date  2023/06/01 12:51
  **/
 @Getter
 @Setter
-public class ZbbzPlanBasicsDetailsDto {
+public class ZbbzEquComponentDetailsEquIdParam {
 
-    /** 主键 */
-    @TableId
-    private String id;
-
-    /** 名称 */
-    private String name;
-
-    /** 开始时间 */
-    private Date startDate;
-
-    /** 结束时间 */
-    private Date endDate;
-
-    /** 作战位置 */
-    private String location;
-    /** 选择的装备 */
-    private List<ZbbzPlanEquDto> zbbzEquBasicsDetailsParamList;
-
-    private String[] treeSelect;
+    @ApiModelProperty(value = "装备名称")
+    @NotBlank(message = "EquId不能为空")
+    private String Equid;
 }

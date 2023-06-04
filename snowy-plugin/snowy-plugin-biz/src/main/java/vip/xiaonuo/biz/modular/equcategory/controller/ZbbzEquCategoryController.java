@@ -143,5 +143,12 @@ public class ZbbzEquCategoryController {
         return CommonResult.data(zbbzEquCategoryService.findEquByCategory(ids));
     }
 
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取装备树label")
+    @SaCheckPermission("/biz/equcategory/categoryTreeList")
+    @GetMapping("/biz/equcategory/categoryTreeList")
+    public CommonResult categoryTreeList(){
+        return CommonResult.data(zbbzEquCategoryService.categoryTreeList());
+    }
 
 }

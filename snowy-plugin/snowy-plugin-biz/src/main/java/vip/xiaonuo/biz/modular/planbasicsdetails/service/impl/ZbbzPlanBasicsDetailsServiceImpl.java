@@ -12,16 +12,26 @@
  */
 package vip.xiaonuo.biz.modular.planbasicsdetails.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equbasicsdetails.mapper.ZbbzEquBasicsDetailsMapper;
 import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
@@ -29,16 +39,24 @@ import vip.xiaonuo.biz.modular.planbasicsdetails.param.*;
 import vip.xiaonuo.biz.modular.planequ.dto.ZbbzPlanEquDto;
 import vip.xiaonuo.biz.modular.planequ.entity.ZbbzPlanEqu;
 import vip.xiaonuo.biz.modular.planequ.mapper.ZbbzPlanEquMapper;
+import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
 import vip.xiaonuo.biz.modular.planlog.entity.ZbbzPlanLog;
 import vip.xiaonuo.biz.modular.planlog.service.ZbbzPlanLogService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.planbasicsdetails.entity.ZbbzPlanBasicsDetails;
 import vip.xiaonuo.biz.modular.planbasicsdetails.mapper.ZbbzPlanBasicsDetailsMapper;
 import vip.xiaonuo.biz.modular.planbasicsdetails.service.ZbbzPlanBasicsDetailsService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -109,9 +127,11 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
     public void add(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
         ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = BeanUtil.toBean(zbbzPlanBasicsDetailsAddParam, ZbbzPlanBasicsDetails.class);
         this.save(zbbzPlanBasicsDetails);
+        zbbzPlanBasicsDetailsAddParam.setId(zbbzPlanBasicsDetails.getId());
         updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);
         //保存日志
-        savePlanLog(zbbzPlanBasicsDetailsAddParam,"add");
+//        savePlanLog(zbbzPlanBasicsDetailsAddParam,"add");
+        //TODO 修改装备库中装备的占用
     }
     void savePlanLog(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam,String operation){
         ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = BeanUtil.toBean(zbbzPlanBasicsDetailsAddParam, ZbbzPlanBasicsDetails.class);
@@ -121,42 +141,56 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         log.setStartDate(zbbzPlanBasicsDetails.getStartDate());
         log.setEndDate(zbbzPlanBasicsDetails.getEndDate());
         log.setPlanName(zbbzPlanBasicsDetails.getName());
-        final List<String> collect = zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList()
-                .stream().map(ZbbzEquBasicsDetailsParam::getEquId)
-                .collect(Collectors.toList());
-        final String ids = JSON.toJSONString(collect);
-        log.setEquIds(ids);
+        final List<ZbbzPlanEquAddParam> detailsParamList = zbbzPlanBasicsDetailsAddParam.getZbbzPlanEquAddParamList();
+        if(!detailsParamList.isEmpty()){
+            final List<String> collect = detailsParamList.stream().map(ZbbzPlanEquAddParam::getId)
+                    .collect(Collectors.toList());
+            final String ids = JSON.toJSONString(collect);
+            log.setEquIds(ids);
+        }
         log.setOperation(operation);
         zbbzPlanLogService.save(log);
     }
-    public void updatePlanEquByPlanId(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam){
-        zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList().stream().forEach(e->{
+    public void updatePlanEquByPlanId(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
+        zbbzPlanBasicsDetailsAddParam.getZbbzPlanEquAddParamList().stream().forEach(e->{
             ZbbzPlanEqu planEqu = new ZbbzPlanEqu();
             planEqu.setPlanId(zbbzPlanBasicsDetailsAddParam.getId());
             planEqu.setName(e.getName());
             planEqu.setModel(e.getModel());
+            planEqu.setStartDate(e.getStartDate());
+            planEqu.setEndDate(e.getEndDate());
+            planEqu.setEquId(e.getId());
             zbbzPlanEquMapper.insert(planEqu);
-            //修改日志
-            savePlanLog(zbbzPlanBasicsDetailsAddParam,"edit");
         });
+        //修改日志
+        savePlanLog(zbbzPlanBasicsDetailsAddParam,"edit");
+        //TODO 修改装备库中装备的占用
     }
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
         ZbbzPlanBasicsDetails zbbzPlanBasicsDetails = this.queryEntity(zbbzPlanBasicsDetailsAddParam.getId());
         BeanUtil.copyProperties(zbbzPlanBasicsDetailsAddParam, zbbzPlanBasicsDetails);
+        zbbzPlanBasicsDetails.setStartDate(zbbzPlanBasicsDetailsAddParam.getStartDate());  //开始时间
+        zbbzPlanBasicsDetails.setEndDate(zbbzPlanBasicsDetailsAddParam.getEndDate());   //结束时间
         QueryWrapper<ZbbzPlanEqu> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(ZbbzPlanEqu::getPlanId,zbbzPlanBasicsDetailsAddParam.getId());
-        zbbzPlanEquMapper.delete(queryWrapper);
-        updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);
+        zbbzPlanEquMapper.delete(queryWrapper);              //删除之前存在的装备
+        updatePlanEquByPlanId(zbbzPlanBasicsDetailsAddParam);  //添加修改后的装备
         this.updateById(zbbzPlanBasicsDetails);
     }
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ZbbzPlanBasicsDetailsIdParam> zbbzPlanBasicsDetailsIdParamList) {
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(zbbzPlanBasicsDetailsIdParamList, ZbbzPlanBasicsDetailsIdParam::getId));
+        //删除任务装备详情
+        zbbzPlanBasicsDetailsIdParamList.forEach(e->{
+            QueryWrapper<ZbbzPlanEqu> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(ZbbzPlanEqu::getPlanId,e.getId());
+            zbbzPlanEquMapper.delete(queryWrapper);
+        });
+        //TODO 接触装备库中装备的占用
     }
 
     @Override
@@ -183,4 +217,75 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         detailsDto.setZbbzEquBasicsDetailsParamList(list);
         return zbbzPlanBasicsDetails;
     }
+
+    @Override
+    public JSONObject importUser(MultipartFile file) {
+        try {
+            int successCount = 0;
+            int errorCount = 0;
+            JSONArray errorDetail = JSONUtil.createArray();
+            // 创建临时文件
+            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "planImportTemplate.xlsx"));
+            // 读取excel
+            List<ZbbzPlanBasicsDetailsImportParam> planImportParamList =  EasyExcel.read(tempFile).head(ZbbzPlanBasicsDetailsImportParam.class).sheet()
+                    .headRowNumber(2).doReadSync();
+            for (int i = 0; i < planImportParamList.size(); i++) {
+                JSONObject jsonObject = this.doImport(planImportParamList.get(i), i);
+                if(jsonObject.getBool("success")) {
+                    successCount += 1;
+                } else {
+                    errorCount += 1;
+                    errorDetail.add(jsonObject);
+                }
+            }
+            return JSONUtil.createObj()
+                    .set("totalCount", planImportParamList.size())
+                    .set("successCount", successCount)
+                    .set("errorCount", errorCount)
+                    .set("errorDetail", errorDetail);
+        } catch (Exception e) {
+            log.error(">>> 任务导入失败：", e);
+            throw new CommonException("任务导入失败");
+        }
+    }
+
+    private JSONObject doImport(ZbbzPlanBasicsDetailsImportParam zbbzPlanBasicsDetailsImportParam, int i) {
+        String planName = zbbzPlanBasicsDetailsImportParam.getName();
+        String location = zbbzPlanBasicsDetailsImportParam.getLocation();
+        // 校验必填参数
+        if(ObjectUtil.hasEmpty(planName, location)) {
+            return JSONUtil.createObj().set("index", i + 1).set("success", false).set("msg", "必填字段存在空值");
+        } else {
+            try {
+
+                ZbbzPlanBasicsDetails details = new ZbbzPlanBasicsDetails();
+                // 拷贝属性
+                BeanUtil.copyProperties(zbbzPlanBasicsDetailsImportParam, details);
+                // 保存或更新
+                this.saveOrUpdate(details);
+
+                // 返回成功
+                return JSONUtil.createObj().set("success", true);
+            } catch (Exception e) {
+                log.error(">>> 数据导入异常：", e);
+                return JSONUtil.createObj().set("success", false).set("index", i + 1).set("msg", "数据导入异常");
+            }
+        }
+    }
+
+    @Override
+    public void downloadImportPlanTemplate(HttpServletResponse response) throws IOException {
+
+        try {
+            InputStream inputStream = POICacheManager.getFile("userImportTemplate.xlsx");
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download("SNOWY2.0系统B端用户导入模板.xlsx", bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载用户导入模板失败：", e);
+            CommonResponseUtil.renderError(response, "下载用户导入模板失败");
+        }
+    }
+
+
 }

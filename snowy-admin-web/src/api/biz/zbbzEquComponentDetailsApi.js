@@ -29,5 +29,18 @@ export default {
 	zbbzEquComponentDetailsDetail(data) {
 		return request('detail', data, 'get')
 	},
+	// 获取装备零部件列表
+	findComponentAll(data) {
+		return request('findComponentAll', data, 'get')
+	},
+	//添加装备对应的零部件
+	addComponentForm(data) {
+		return request('addComponentForm', data, 'post')
+	},
+	
+	//获取装备对应的零部件列表
+	findComponentByPlanId(data) {
+		return request('findComponentByPlanId', data, 'get')
+	},
 
 }

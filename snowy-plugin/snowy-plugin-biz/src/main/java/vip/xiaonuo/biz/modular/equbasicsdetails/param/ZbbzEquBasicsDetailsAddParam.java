@@ -33,18 +33,22 @@ public class ZbbzEquBasicsDetailsAddParam {
 
     /** 装备名称 */
     @ApiModelProperty(value = "装备名称", position = 2)
+    @NotBlank(message = "名称不能为空")
     private String name;
 
     /** 型号 */
     @ApiModelProperty(value = "型号", position = 3)
+    @NotBlank(message = "型号不能为空")
     private String model;
 
     /** 经纬度 */
     @ApiModelProperty(value = "经纬度", position = 4)
+    @NotBlank(message = "所在位置不能为空")
     private String location;
 
     /** 剩余寿命 */
     @ApiModelProperty(value = "剩余寿命", position = 5)
+    @NotBlank(message = "剩余寿命不能为空")
     private String residueLifetime;
 
     /** 使用情况 */

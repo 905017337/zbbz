@@ -12,8 +12,10 @@
  */
 package vip.xiaonuo.biz.modular.planbasicsdetails.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.planbasicsdetails.entity.ZbbzPlanBasicsDetails;
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsAddParam;
@@ -21,6 +23,9 @@ import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsEdit
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsIdParam;
 import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsPageParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -53,7 +58,7 @@ public interface ZbbzPlanBasicsDetailsService extends IService<ZbbzPlanBasicsDet
      * @author czh
      * @date  2023/06/01 12:40
      */
-    void edit(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam);
+    void edit(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) ;
 
     /**
      * 删除作战任务
@@ -78,4 +83,9 @@ public interface ZbbzPlanBasicsDetailsService extends IService<ZbbzPlanBasicsDet
      * @date  2023/06/01 12:40
      **/
     ZbbzPlanBasicsDetails queryEntity(String id);
+
+    JSONObject importUser(MultipartFile file);
+
+
+    void downloadImportPlanTemplate(HttpServletResponse response) throws IOException;
 }

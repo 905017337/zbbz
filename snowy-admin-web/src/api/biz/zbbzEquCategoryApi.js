@@ -32,6 +32,9 @@ export default {
 	categoryTree(data) {
 		return request('categoryTree', data, 'get')
 	},
+	categoryTreeList(data) {
+		return request('categoryTreeList', data, 'get')
+	},
 	//获取分类对应的装备
 	findEquByCategory(data){
 		return request("findEquByCategory",data,"POST")

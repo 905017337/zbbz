@@ -19,9 +19,13 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
+import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
+import vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper;
+import vip.xiaonuo.biz.modular.equcomponentdetails.dto.EquComponentDetailsEquDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
 import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
@@ -38,6 +42,8 @@ import vip.xiaonuo.biz.modular.equbasicsdetails.service.ZbbzEquBasicsDetailsServ
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +57,8 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
 
     @Resource
     ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
+    @Resource
+    ZbbzEquCategoryMapper zbbzEquCategoryMapper;
     @Override
     public Page<ZbbzEquBasicsDetailsDto> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
         QueryWrapper<ZbbzEquBasicsDetails> queryWrapper = new QueryWrapper<>();
@@ -75,16 +83,6 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
         }
         Page<ZbbzEquBasicsDetails> detailsPage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<ZbbzEquBasicsDetails> detailsList = detailsPage.getRecords();
-        detailsList.stream().forEach(e->{
-            String residueLifetime = e.getResidueLifetime();
-            if("0".equals(residueLifetime)) e.setResidueLifetime("新品");
-            if("1".equals(residueLifetime)) e.setResidueLifetime("堪用");
-            if("2".equals(residueLifetime)) e.setResidueLifetime("待修");
-            if("3".equals(residueLifetime)) e.setResidueLifetime("损毁");
-            String status = e.getStatus();
-            if("0".equals(status)) e.setStatus("空闲");
-            if("1".equals(status)) e.setStatus("占用");
-        });
         Page<ZbbzEquBasicsDetailsDto> result = new Page<>();
         ArrayList<ZbbzEquBasicsDetailsDto> arrayList = new ArrayList<>();
         List<ZbbzEquBasicsDetails> records = detailsPage.setRecords(detailsList).getRecords();
@@ -94,14 +92,41 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
             qw.lambda().eq(ZbbzEquComponentDetails::getEquId,e.getId());
             List<ZbbzEquComponentDetails> selectedList = zbbzEquComponentDetailsMapper.selectList(qw);
             BeanUtil.copyProperties(e,dto);
-            dto.setZbbzEquComponentDetailsList(selectedList);
+            List<EquComponentDetailsEquDto> objects = new ArrayList<>();
+            List<String> categoryList = new ArrayList<>();
+            zhaobaba(e.getCategoryId(),categoryList);
+            Collections.reverse(categoryList);
+            Object[] listArray = categoryList.toArray();
+            dto.setCategoryId(listArray);
+            selectedList.forEach(item->{
+                EquComponentDetailsEquDto equDto = new EquComponentDetailsEquDto();
+                BeanUtil.copyProperties(item,equDto);
+                objects.add(equDto);
+            });
+            dto.setZbbzEquComponentDetailsList(objects);
             arrayList.add(dto);
         });
         BeanUtil.copyProperties(detailsPage,result);
         result.setRecords(arrayList);
         return result;
     }
+    void zhaobaba(String id,List<String> categoryList){
+        QueryWrapper<ZbbzEquCategory> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(ZbbzEquCategory::getId,id);
+        ZbbzEquCategory selectedOne = zbbzEquCategoryMapper.selectOne(wrapper);
+        if(StringUtils.isNotEmpty(selectedOne.getParentId()) ){
+            final int length = selectedOne.getId().length();
+            if(length == 1){
+                categoryList.add(selectedOne.getId());
+            }else {
+                categoryList.add(selectedOne.getId());
+                zhaobaba(selectedOne.getParentId(),categoryList);
+            }
 
+
+        }
+
+    }
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ZbbzEquBasicsDetailsAddParam zbbzEquBasicsDetailsAddParam) {
@@ -112,8 +137,18 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ZbbzEquBasicsDetailsEditParam zbbzEquBasicsDetailsEditParam) {
+        String[] categoryIdArrys = zbbzEquBasicsDetailsEditParam.getCategoryId();
+        String categoryid= categoryIdArrys[categoryIdArrys.length-1];
         ZbbzEquBasicsDetails zbbzEquBasicsDetails = this.queryEntity(zbbzEquBasicsDetailsEditParam.getId());
-        BeanUtil.copyProperties(zbbzEquBasicsDetailsEditParam, zbbzEquBasicsDetails);
+//        BeanUtil.copyProperties(zbbzEquBasicsDetailsEditParam, zbbzEquBasicsDetails);
+        zbbzEquBasicsDetails.setCategoryId(categoryid);
+        zbbzEquBasicsDetails.setId(zbbzEquBasicsDetails.getId());
+        zbbzEquBasicsDetails.setModel(zbbzEquBasicsDetails.getModel());
+        zbbzEquBasicsDetails.setName(zbbzEquBasicsDetails.getName());
+        zbbzEquBasicsDetails.setStatus(zbbzEquBasicsDetails.getStatus());
+        zbbzEquBasicsDetails.setLocation(zbbzEquBasicsDetails.getLocation());
+        zbbzEquBasicsDetails.setExportDate(new Date());
+        zbbzEquBasicsDetails.setResidueLifetime(zbbzEquBasicsDetails.getResidueLifetime());
         this.updateById(zbbzEquBasicsDetails);
     }
 

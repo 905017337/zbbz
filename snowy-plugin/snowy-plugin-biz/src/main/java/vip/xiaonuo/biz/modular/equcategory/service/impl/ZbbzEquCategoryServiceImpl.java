@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equbasicsdetails.mapper.ZbbzEquBasicsDetailsMapper;
 import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryDto;
+import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryListDto;
 import vip.xiaonuo.biz.modular.equcategory.param.*;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.enums.ZbbzEquComponentDetailsEnum;
@@ -155,5 +156,36 @@ public class ZbbzEquCategoryServiceImpl extends ServiceImpl<ZbbzEquCategoryMappe
         return arrayList;
     }
 
+    @Override
+    public Object[] categoryTreeList() {
+        List<ZbbzEquCategoryListDto> catewayTree = new ArrayList<>();
+        List<ZbbzEquCategory> list = this.list();
+        for (ZbbzEquCategory zbbzEquCategory : list) {
+            ZbbzEquCategoryListDto dto = new ZbbzEquCategoryListDto();
+            BeanUtil.copyProperties(zbbzEquCategory,dto);
+            dto.setLabel(zbbzEquCategory.getName());
+            dto.setValue(zbbzEquCategory.getId());
+            catewayTree.add(dto);
+        }
+         ZbbzEquCategoryListDto oredElse = catewayTree.stream().filter(tree -> "0".equals(tree.getParentId())).peek(
+                //设置子节点信息
+                tree -> tree.setChildren(getChildrenList(tree, catewayTree))
+        ).findFirst().orElse(new ZbbzEquCategoryListDto());
+        Object[] s =  new Object[1];
+        s[0] = oredElse;
+        return s;
+    }
 
+    private Object[] getChildrenList(ZbbzEquCategoryListDto root, List<ZbbzEquCategoryListDto> trees) {
+        List<ZbbzEquCategoryListDto> list = trees.stream().filter(tree ->
+                //筛选出下一节点元素
+                Objects.equals(tree.getParentId(), root.getId())).map(tree -> {
+            //递归set子节点
+            Object[] childrenList = this.getChildrenList(tree, trees);
+            tree.setChildren(childrenList);
+            return tree;
+        }).collect(Collectors.toList());
+
+        return list.toArray();
+    }
 }

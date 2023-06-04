@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.equcomponentdetails.dto.EquComponentDetailsEquDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.dto.ZbbzEquComponentDetailsDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 
@@ -58,13 +59,13 @@ public class ZbbzEquBasicsDetailsDto {
     private Date exportDate;
 
     /** 创建时间 */
-    private Date createTime;
+    private Date createDate;
 
     /** 更新时间 */
-    private Date updateTime;
+    private Date updateDate;
 
     /** 分类id */
-    private String categoryId;
+    private Object[] categoryId;
 
-    private List<ZbbzEquComponentDetails>  zbbzEquComponentDetailsList;
+    private List<EquComponentDetailsEquDto>  zbbzEquComponentDetailsList;
 }

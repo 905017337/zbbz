@@ -61,12 +61,17 @@
 	const formRef = ref()
 	const toolConfig = { refresh: true, height: true, columnSetting: true, striped: false }
 	const columns = [
+		
+		{
+			title: '节点ID',
+			dataIndex: 'id'
+		},
 		{
 			title: '类型名称',
 			dataIndex: 'name'
 		},
 		{
-			title: '父节点id',
+			title: '父节点ID',
 			dataIndex: 'parentId'
 		},
 	]

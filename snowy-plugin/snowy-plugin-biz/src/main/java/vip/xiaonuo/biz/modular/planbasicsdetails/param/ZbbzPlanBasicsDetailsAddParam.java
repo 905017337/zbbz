@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.planbasicsdetails.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -39,7 +40,7 @@ public class ZbbzPlanBasicsDetailsAddParam {
     private String name;
 
     /** 开始时间 */
-    @ApiModelProperty(value = "开始时间", required = true, position = 3)
+    @ApiModelProperty(value = "作战时间", required = true, position = 3)
     @NotNull(message = "startDate不能为空")
     private Date startDate;
 
@@ -53,6 +54,6 @@ public class ZbbzPlanBasicsDetailsAddParam {
     @NotBlank(message = "location不能为空")
     private String location;
 
-    private List<ZbbzEquBasicsDetailsParam> zbbzEquBasicsDetailsParamList;
+    private List<ZbbzPlanEquAddParam> zbbzPlanEquAddParamList;
 
 }

@@ -29,6 +29,15 @@ export default {
 	zbbzPlanBasicsDetailsDetail(data) {
 		return request('detail', data, 'get')
 	},
+	// 获取模板
+	planDownloadImportplanTemplate(data) {
+		return request('planDownloadImportplanTemplate', data, 'get')
+	},
+	// 导入
+	planImport(data) {
+		return request('import', data, 'post')
+	},	
+	
 
 
 }
