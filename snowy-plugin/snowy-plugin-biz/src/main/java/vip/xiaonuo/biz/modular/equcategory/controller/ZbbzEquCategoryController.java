@@ -138,9 +138,7 @@ public class ZbbzEquCategoryController {
     @SaCheckPermission("/biz/equcategory/findEquByCategory")
     @PostMapping("/biz/equcategory/findEquByCategory")
     public CommonResult findEquByCategory(@RequestBody equByIdsParam param){
-        final List<String> ids = Arrays.stream(param.getIds()).collect(Collectors.toList());
-
-        return CommonResult.data(zbbzEquCategoryService.findEquByCategory(ids));
+        return CommonResult.data(zbbzEquCategoryService.findEquByCategory(param));
     }
 
     @ApiOperationSupport(order = 7)

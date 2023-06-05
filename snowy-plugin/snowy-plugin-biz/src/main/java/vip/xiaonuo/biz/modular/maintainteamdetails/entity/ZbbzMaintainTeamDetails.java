@@ -57,7 +57,7 @@ public class ZbbzMaintainTeamDetails {
 
     /** 维修结束时间 */
     @ApiModelProperty(value = "维修结束时间",position = 7)
-    private Date maintainendDate;
+    private Date maintainEndDate;
 
     /** 维修占用状态 */
     @ApiModelProperty(value = "维修占用状态",position = 8)

@@ -38,15 +38,9 @@
 								</a-select>
 							</a-form-item>
 						</a-col>
-						<!-- <a-col :span="12">
-							<a-form-item label="入库时间：" name="exportDate">
-								<a-date-picker v-model:value="formData.exportDate" value-format="YYYY-MM-DD HH:mm:ss"
-									 placeholder="请选择入库时间" style="width: 100%" />
-							</a-form-item>
-						</a-col> -->
 						<a-col :span="12">
 							<!-- :field-names="{label: 'title', value: 'key', }" -->
-							<a-form-item label="分类id：" name="categoryId">
+							<a-form-item label="分类：" name="categoryId">
 								<a-cascader v-model:value="formData.categoryId"
 								:options="categoryOptions" placeholder="请选择分类" />
 							</a-form-item>
@@ -120,7 +114,14 @@ const loadTableDate = () => {
 	console.log("123")
 
 }
-
+// 默认要校验的
+const formRules = {
+	name: [required('请输入任务名称')],
+	model: [required('请输入开始时间')],
+	status: [required('请输入结束时间')],
+	location: [required('请输入作战位置')],
+	categoryId: [required('请输入作战位置')],
+}
 loadTableDate();
 const EquComponentModal = ref(false)
 // 对话框
@@ -208,9 +209,6 @@ const category = () => {
 	})
 }
 category()
-// 默认要校验的
-const formRules = {
-}
 // 验证并提交数据
 const onSubmit = () => {
 	formRef.value.validate().then(() => {

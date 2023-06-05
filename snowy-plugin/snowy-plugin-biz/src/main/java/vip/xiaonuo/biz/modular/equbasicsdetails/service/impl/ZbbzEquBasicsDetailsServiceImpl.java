@@ -12,35 +12,48 @@
  */
 package vip.xiaonuo.biz.modular.equbasicsdetails.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
+import vip.xiaonuo.biz.modular.equbasicsdetails.param.*;
 import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
 import vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper;
 import vip.xiaonuo.biz.modular.equcomponentdetails.dto.EquComponentDetailsEquDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
 import vip.xiaonuo.biz.modular.planbasicsdetails.dto.ZbbzPlanBasicsDetailsDto;
+import vip.xiaonuo.biz.modular.planbasicsdetails.entity.ZbbzPlanBasicsDetails;
+import vip.xiaonuo.biz.modular.planbasicsdetails.param.ZbbzPlanBasicsDetailsImportParam;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equbasicsdetails.mapper.ZbbzEquBasicsDetailsMapper;
-import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsAddParam;
-import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsEditParam;
-import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsIdParam;
-import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsPageParam;
 import vip.xiaonuo.biz.modular.equbasicsdetails.service.ZbbzEquBasicsDetailsService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -171,5 +184,73 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
             throw new CommonException("基础信息不存在，id值为：{}", id);
         }
         return zbbzEquBasicsDetails;
+    }
+
+    @Override
+    public void downloadImporEquTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = POICacheManager.getFile("equExportTemplate.xlsx");
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download("任务导入模板.xlsx", bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载用户导入模板失败：", e);
+            CommonResponseUtil.renderError(response, "下载用户导入模板失败");
+        }
+    }
+
+    @Override
+    public JSONObject importEqu(MultipartFile file) {
+        try {
+            int successCount = 0;
+            int errorCount = 0;
+            JSONArray errorDetail = JSONUtil.createArray();
+            // 创建临时文件
+            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "equImportTemplate.xlsx"));
+            // 读取excel
+            List<ZbbzEquBasicsDetailsImportParam> equImportParamList =  EasyExcel.read(tempFile).head(ZbbzEquBasicsDetailsImportParam.class).sheet()
+                    .headRowNumber(2).doReadSync();
+            for (int i = 0; i < equImportParamList.size(); i++) {
+                JSONObject jsonObject = this.doImport(equImportParamList.get(i), i);
+                if(jsonObject.getBool("success")) {
+                    successCount += 1;
+                } else {
+                    errorCount += 1;
+                    errorDetail.add(jsonObject);
+                }
+            }
+            return JSONUtil.createObj()
+                    .set("totalCount", equImportParamList.size())
+                    .set("successCount", successCount)
+                    .set("errorCount", errorCount)
+                    .set("errorDetail", errorDetail);
+        } catch (Exception e) {
+            log.error(">>> 任务导入失败：", e);
+            throw new CommonException("任务导入失败");
+        }
+    }
+
+    private JSONObject doImport(ZbbzEquBasicsDetailsImportParam zbbzEquBasicsDetailsImportParam, int i) {
+        String planName = zbbzEquBasicsDetailsImportParam.getName();
+        String location = zbbzEquBasicsDetailsImportParam.getLocation();
+        // 校验必填参数
+        if(ObjectUtil.hasEmpty(planName, location)) {
+            return JSONUtil.createObj().set("index", i + 1).set("success", false).set("msg", "必填字段存在空值");
+        } else {
+            try {
+                ZbbzEquBasicsDetails details = new ZbbzEquBasicsDetails();
+                // 拷贝属性
+                BeanUtil.copyProperties(zbbzEquBasicsDetailsImportParam, details);
+                details.setExportDate(new Date());
+                // 保存或更新
+                this.saveOrUpdate(details);
+
+                // 返回成功
+                return JSONUtil.createObj().set("success", true);
+            } catch (Exception e) {
+                log.error(">>> 数据导入异常：", e);
+                return JSONUtil.createObj().set("success", false).set("index", i + 1).set("msg", "数据导入异常");
+            }
+        }
     }
 }

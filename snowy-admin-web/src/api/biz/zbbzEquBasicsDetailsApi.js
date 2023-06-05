@@ -28,5 +28,13 @@ export default {
 	// 获取基础信息详情
 	zbbzEquBasicsDetailsDetail(data) {
 		return request('detail', data, 'get')
+	},
+	//下载模板
+	equDownloadImportplanTemplate(data) {
+		return request('equDownloadImportplanTemplate', data, 'get')
+	},
+	//导入文件
+	equImport(data) {
+		return request('import', data, 'post')
 	}
 }

@@ -81,7 +81,7 @@ public interface ZbbzEquCategoryService extends IService<ZbbzEquCategory> {
 
     ZbbzEquCategoryDto categoryTree();
 
-    List<ZbbzEquBasicsDetails> findEquByCategory(List<String> ids);
+    List<ZbbzEquBasicsDetails> findEquByCategory(equByIdsParam param);
 
     Object[] categoryTreeList();
 }

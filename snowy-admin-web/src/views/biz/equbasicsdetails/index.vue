@@ -48,6 +48,10 @@
 						<template #icon><plus-outlined /></template>
 						新增
 					</a-button>
+					<a-button type="primary" @click="ImpExpRef.onOpen()" v-if="hasPerm('zbbzPlanBasicsDetailsAdd')">
+						<template #icon><import-outlined /></template>
+						<span>{{ $t('common.imports') }}</span>
+					</a-button>
 					<xn-batch-delete
 						v-if="hasPerm('zbbzEquBasicsDetailsBatchDelete')"
 						:selectedRowKeys="selectedRowKeys"
@@ -68,15 +72,19 @@
 			</template>
 		</s-table>
 	</a-card>
+	<ImpExp ref="ImpExpRef" />
 	<Form ref="formRef" @successful="table.refresh(true)" />
 </template>
 
 <script setup name="equbasicsdetails">
 	import Form from './form.vue'
 	import zbbzEquBasicsDetailsApi from '@/api/biz/zbbzEquBasicsDetailsApi'
+	import ImpExp from './impExp.vue'
+import tool from '@/utils/tool'
 	let searchFormState = reactive({})
 	const searchFormRef = ref()
 	const table = ref()
+	const ImpExpRef = ref()
 	const formRef = ref()
 	const toolConfig = { refresh: true, height: true, columnSetting: true, striped: false }
 	// 查询区域显示更多控制

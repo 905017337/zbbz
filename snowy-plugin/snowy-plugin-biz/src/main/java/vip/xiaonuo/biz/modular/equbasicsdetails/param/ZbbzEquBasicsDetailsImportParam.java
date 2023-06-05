@@ -17,8 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -29,7 +27,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class ZbbzEquBasicsDetailsAddParam {
+public class ZbbzEquBasicsDetailsImportParam {
 
     /** 装备名称 */
     @ApiModelProperty(value = "装备名称", position = 2)
@@ -42,13 +40,12 @@ public class ZbbzEquBasicsDetailsAddParam {
     private String model;
 
     /** 经纬度 */
-    @ApiModelProperty(value = "经纬度", position = 4)
+    @ApiModelProperty(value = "所在位置", position = 4)
     @NotBlank(message = "所在位置不能为空")
     private String location;
 
     /** 剩余寿命 */
     @ApiModelProperty(value = "剩余寿命", position = 5)
-    @NotBlank(message = "剩余寿命不能为空")
     private String residueLifetime;
 
     /** 使用情况 */

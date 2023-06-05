@@ -70,7 +70,17 @@ public class ZbbzEquBasicsDetails {
     private Date updateDate;
 
     /** 分类id */
-    @ApiModelProperty(value = "分类id", position = 10)
+    @ApiModelProperty(value = "分类ID", position = 10)
     private String categoryId;
 
+    /** 任务开始时间 */
+    @ApiModelProperty(value = "任务开始时间",position = 11)
+    private Date planStartDate;
+
+    /** 任务结束时间 */
+    @ApiModelProperty(value = "任务结束时间",position = 12)
+    private Date planEndDate;
+    /** 任务ID */
+    @ApiModelProperty(value = "任务ID",position = 13)
+    private String planId;
 }

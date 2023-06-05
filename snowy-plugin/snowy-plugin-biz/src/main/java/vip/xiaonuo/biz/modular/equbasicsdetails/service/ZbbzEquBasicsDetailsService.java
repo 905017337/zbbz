@@ -12,8 +12,10 @@
  */
 package vip.xiaonuo.biz.modular.equbasicsdetails.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsAddParam;
@@ -21,6 +23,8 @@ import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsEditPa
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsIdParam;
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsPageParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -78,4 +82,8 @@ public interface ZbbzEquBasicsDetailsService extends IService<ZbbzEquBasicsDetai
      * @date  2023/06/01 12:51
      **/
     ZbbzEquBasicsDetails queryEntity(String id);
+
+    void downloadImporEquTemplate(HttpServletResponse response) throws IOException;
+
+    JSONObject importEqu(MultipartFile file);
 }

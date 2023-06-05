@@ -13,7 +13,11 @@
 package vip.xiaonuo.biz.modular.equcategory.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
 import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
+import vip.xiaonuo.biz.modular.equcategory.param.ZbbzEquCategoryParam;
+
+import java.util.List;
 
 /**
  * 装备分类Mapper接口
@@ -22,4 +26,5 @@ import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
  * @date  2023/06/01 12:49
  **/
 public interface ZbbzEquCategoryMapper extends BaseMapper<ZbbzEquCategory> {
+    List<ZbbzEquBasicsDetails> findEquByCategory(ZbbzEquCategoryParam categoryParam);
 }

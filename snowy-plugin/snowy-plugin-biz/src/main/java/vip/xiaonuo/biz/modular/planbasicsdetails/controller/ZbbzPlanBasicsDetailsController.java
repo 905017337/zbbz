@@ -146,8 +146,8 @@ public class ZbbzPlanBasicsDetailsController {
     @ApiOperation("下载模版")
     @CommonLog("下载模版")
     @GetMapping(value = "/biz/planbasicsdetails/planDownloadImportplanTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void downloadImportPlanTemplate(HttpServletResponse response) throws IOException {
-        zbbzPlanBasicsDetailsService.downloadImportPlanTemplate(response);
+    public void downloadImporPlanTemplate(HttpServletResponse response) throws IOException {
+        zbbzPlanBasicsDetailsService.downloadImporPlanTemplate(response);
     }
 
 

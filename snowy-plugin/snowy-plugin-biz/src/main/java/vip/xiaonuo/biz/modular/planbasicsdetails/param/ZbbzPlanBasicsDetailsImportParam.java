@@ -33,15 +33,19 @@ import java.util.List;
 public class ZbbzPlanBasicsDetailsImportParam {
 
     /** 名称 */
+    @NotBlank(message = "名称不能为空")
     private String name;
 
     /** 开始时间 */
+    @NotBlank(message = "开始时间不能为空")
     private Date startDate;
 
     /** 结束时间 */
+    @NotBlank(message = "结束时间不能为空")
     private Date endDate;
 
     /** 作战位置 */
+    @NotBlank(message = "部署位置不能为空")
     private String location;
 
 

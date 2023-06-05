@@ -2,4 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper">
 
+    <select id="findEquByCategory" parameterType="vip.xiaonuo.biz.modular.equcategory.param.ZbbzEquCategoryParam" resultType="vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory">
+        SELECT
+            id,
+            `NAME`,
+            model,
+            location,
+            residue_lifetime,
+            `STATUS`,
+            export_date,
+            create_date,
+            update_date,
+            category_id,
+            plan_start_date,
+            plan_end_date,
+            plan_id
+        FROM
+            zbbz_equ_basics_details
+        WHERE
+            category_id = #{categoryId}  # 当前分类下的
+		and
+		( plan_id =#{planId}  # 当前任务下占用的
+        or ((plan_id !=#{planId} or plan_id is null) and `status` = #{status} )) 	# 不被其他任务占用的及
+    </select>
 </mapper>

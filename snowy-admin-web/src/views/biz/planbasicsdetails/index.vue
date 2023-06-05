@@ -26,7 +26,6 @@
 					<a-button type="primary" @click="ImpExpRef.onOpen()" v-if="hasPerm('zbbzPlanBasicsDetailsAdd')">
 						<template #icon><import-outlined /></template>
 						<span>{{ $t('common.imports') }}</span>
-
 					</a-button>
 					<xn-batch-delete v-if="hasPerm('zbbzPlanBasicsDetailsBatchDelete')" :selectedRowKeys="selectedRowKeys"
 						@batchDelete="deleteBatchZbbzPlanBasicsDetails" />

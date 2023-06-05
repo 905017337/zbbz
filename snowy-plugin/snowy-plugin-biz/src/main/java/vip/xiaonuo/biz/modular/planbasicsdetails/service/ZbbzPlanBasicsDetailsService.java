@@ -87,5 +87,6 @@ public interface ZbbzPlanBasicsDetailsService extends IService<ZbbzPlanBasicsDet
     JSONObject importUser(MultipartFile file);
 
 
-    void downloadImportPlanTemplate(HttpServletResponse response) throws IOException;
+
+    void downloadImporPlanTemplate(HttpServletResponse response) throws IOException;
 }

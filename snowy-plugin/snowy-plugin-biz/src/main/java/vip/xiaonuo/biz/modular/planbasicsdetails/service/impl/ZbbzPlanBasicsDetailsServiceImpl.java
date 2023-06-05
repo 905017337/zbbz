@@ -274,18 +274,17 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         }
     }
 
-    @Override
-    public void downloadImportPlanTemplate(HttpServletResponse response) throws IOException {
 
+
+    @Override
+    public void downloadImporPlanTemplate(HttpServletResponse response) throws IOException {
         try {
-            InputStream inputStream = POICacheManager.getFile("userImportTemplate.xlsx");
+            InputStream inputStream = POICacheManager.getFile("planImportTemplate.xlsx");
             byte[] bytes = IoUtil.readBytes(inputStream);
-            CommonDownloadUtil.download("SNOWY2.0系统B端用户导入模板.xlsx", bytes, response);
+            CommonDownloadUtil.download("任务导入模板.xlsx", bytes, response);
         } catch (Exception e) {
-            log.error(">>> 下载用户导入模板失败：", e);
+            log.error(">>> 下载装备导入模板失败：", e);
             CommonResponseUtil.renderError(response, "下载用户导入模板失败");
         }
     }
-
-
 }

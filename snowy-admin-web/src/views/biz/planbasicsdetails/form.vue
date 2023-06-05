@@ -7,8 +7,8 @@
 				<a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
 					<a-row :gutter="16">
 						<a-col :span="12">
-							<a-form-item label="名称：" name="name">
-								<a-input v-model:value="formData.name" :disabled="disabled" placeholder="请输入名称" allow-clear />
+							<a-form-item label="任务名称：" name="name" >
+								<a-input v-model:value="formData.name" :disabled="disabled" placeholder="请输入任务名称" allow-clear />
 							</a-form-item>
 						</a-col>
 						<a-col :span="12">
@@ -117,17 +117,26 @@ const dealTreeData = (treeData) => {
 }
 const selectTableDate = ref([])
 const action = ref()
+const equByIdsParam = {
+	planId: '',
+	startDate: '',
+	endDate: '',
+	ids:''
+}
 // 打开抽屉
 const onOpen = (record, action) => {
-	console.log(action.action)
+	console.log(record)
+
 	visible.value = true
 	if ('add' == action.action) { 
-		console.log(action.action)
 		dataSource.value = ([])
 		treeData.value = ([])
 		selectedKeys.value = ([])
 		disabled.value = false
 	} else if ('edit' == action.action) {
+		equByIdsParam.startDate = record.startDate
+		equByIdsParam.planId = record.id
+		equByIdsParam.endDate = record.endDate
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
 		checkedKeys.value = record.treeSelect
@@ -135,6 +144,9 @@ const onOpen = (record, action) => {
 		dataSource.value = selectTableDate.value
 		disabled.value = false
 	} else if ('view' == action.action) {
+		equByIdsParam.startDate = record.startDate
+		equByIdsParam.planId = record.id
+		equByIdsParam.endDate = record.endDate
 		let recordData = cloneDeep(record)
 		formData.value = Object.assign({}, recordData)
 		checkedKeys.value = record.treeSelect
@@ -143,6 +155,12 @@ const onOpen = (record, action) => {
 		disabled.value = true
 	}
 }
+const loadData = () => {
+	zbbzEquCategoryApi.categoryTree().then((res) => {
+		treeData.push(res)
+	})
+}
+loadData()
 // 关闭抽屉
 const onClose = () => {
 	formRef.value.resetFields()
@@ -151,7 +169,7 @@ const onClose = () => {
 }
 // 默认要校验的
 const formRules = {
-	name: [required('请输入名称')],
+	name: [required('请输入任务名称')],
 	startDate: [required('请输入开始时间')],
 	endDate: [required('请输入结束时间')],
 	location: [required('请输入作战位置')],
@@ -162,7 +180,6 @@ const onSubmit = () => {
 		submitLoading.value = true
 		formData.value.zbbzPlanEquAddParamList = tableSelect
 		const formDataParam = cloneDeep(formData.value)
-		console.log(formDataParam)
 		zbbzPlanBasicsDetailsApi
 			.zbbzPlanBasicsDetailsSubmitForm(formDataParam, !formDataParam.id)
 			.then(() => {
@@ -195,17 +212,15 @@ const treeSelect = (selectedKeysValue, info) => {
 	if (ids.length == 0) {
 		return
 	}
-	let equByIdsParam = {
-		ids: ids,
-	}
+	equByIdsParam.ids = ids
 	//获取到所有的资源
 
 	zbbzEquCategoryApi.findEquByCategory(equByIdsParam).then((res) => {
+		console.log(res)
 		//比较res数据中selectTableDate中的数据，如果有相同的设置table的选中状态
 		let tempSelectTableDate = cloneDeep(selectTableDate.value)
 		let tempRes = cloneDeep(res)
 		let tempdate = []
-		if (action.value == 'edit') {
 			tempSelectTableDate.forEach((item) => {
 				tempRes.forEach((item2) => {
 					if (item.equId == item2.id) {
@@ -213,7 +228,6 @@ const treeSelect = (selectedKeysValue, info) => {
 					}
 				})
 			})
-		}
 		selectedRowKeys.value = tempdate
 		dataSource.value = res
 	})
@@ -224,11 +238,7 @@ const treeCheck = (checkedKeysValue, info) => {
 	checkedKeys.value = checkedKeysValue
 };
 
-const loadData = () => {
-	zbbzEquCategoryApi.categoryTree().then((res) => {
-		treeData.push(res)
-	})
-}
+
 
 //获取表格中选中的数据
 const onSelectChange = (selectedRowKeysValue, selectedRows) => {
@@ -277,7 +287,6 @@ const columns = [
 
 ];
 
-loadData();
 // 抛出函数
 defineExpose({
 	onOpen

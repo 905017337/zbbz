@@ -16,12 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -31,8 +26,6 @@ import vip.xiaonuo.biz.modular.equbasicsdetails.mapper.ZbbzEquBasicsDetailsMappe
 import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryDto;
 import vip.xiaonuo.biz.modular.equcategory.dto.ZbbzEquCategoryListDto;
 import vip.xiaonuo.biz.modular.equcategory.param.*;
-import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
-import vip.xiaonuo.biz.modular.equcomponentdetails.enums.ZbbzEquComponentDetailsEnum;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -42,11 +35,8 @@ import vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper;
 import vip.xiaonuo.biz.modular.equcategory.service.ZbbzEquCategoryService;
 
 import javax.annotation.Resource;
-import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -145,12 +135,18 @@ public class ZbbzEquCategoryServiceImpl extends ServiceImpl<ZbbzEquCategoryMappe
     }
 
     @Override
-    public List<ZbbzEquBasicsDetails> findEquByCategory(List<String> ids) {
+    public List<ZbbzEquBasicsDetails> findEquByCategory(equByIdsParam param) {
+        List<String> ids = Arrays.stream(param.getIds()).collect(Collectors.toList());
+        param.getStartDate();
         List<ZbbzEquBasicsDetails> arrayList = new ArrayList<>();
         ids.stream().forEach(e->{
-            QueryWrapper<ZbbzEquBasicsDetails> eq = new QueryWrapper<>();
-            eq.lambda().eq(ZbbzEquBasicsDetails::getCategoryId,e);
-            List<ZbbzEquBasicsDetails> detailsList = zbbzEquBasicsDetailsMapper.selectList(eq);
+            ZbbzEquCategoryParam categoryParam = new ZbbzEquCategoryParam();
+            categoryParam.setCategoryId(e);
+            categoryParam.setStatus("0");
+            categoryParam.setPlanId(param.getPlanId());
+            categoryParam.setPlanEndDate(param.getStartDate());
+            categoryParam.setPlanStartDate(param.getStartDate());
+            List<ZbbzEquBasicsDetails> detailsList = zbbzEquCategoryMapper.findEquByCategory(categoryParam);
             arrayList.addAll(detailsList);
         });
         return arrayList;
