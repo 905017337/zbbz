@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper">
 
-    <select id="findEquByCategory" parameterType="vip.xiaonuo.biz.modular.equcategory.param.ZbbzEquCategoryParam" resultType="vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory">
+    <select id="findEquByCategory" parameterType="vip.xiaonuo.biz.modular.equcategory.param.ZbbzEquCategoryParam" resultType="vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails">
         SELECT
             id,
             `NAME`,

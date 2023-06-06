@@ -34,6 +34,10 @@
 						<template #icon><plus-outlined /></template>
 						新增
 					</a-button>
+					<a-button type="primary" @click="ImpExpRef.onOpen()" v-if="hasPerm('zbbzPlanBasicsDetailsAdd')">
+						<template #icon><import-outlined /></template>
+						<span>{{ $t('common.imports') }}</span>
+					</a-button>
 					<xn-batch-delete
 						v-if="hasPerm('zbbzMaintainTeamCapacityBatchDelete')"
 						:selectedRowKeys="selectedRowKeys"
@@ -54,21 +58,29 @@
 			</template>
 		</s-table>
 	</a-card>
+	<ImpExp ref="ImpExpRef" />
 	<Form ref="formRef" @successful="table.refresh(true)" />
 </template>
 
 <script setup name="maintainteamcapacity">
 	import Form from './form.vue'
+	import ImpExp from './impExp.vue'
+	import tool from '@/utils/tool'
 	import zbbzMaintainTeamCapacityApi from '@/api/biz/zbbzMaintainTeamCapacityApi'
 	let searchFormState = reactive({})
 	const searchFormRef = ref()
 	const table = ref()
+	const ImpExpRef = ref()
 	const formRef = ref()
 	const toolConfig = { refresh: true, height: true, columnSetting: true, striped: false }
 	const columns = [
 		{
 			title: '零部件名称',
 			dataIndex: 'equComponentName'
+		},
+		{
+			title: '型号',
+			dataIndex: 'model'
 		},
 		{
 			title: '能力',
@@ -80,7 +92,20 @@
 		},
 		{
 			title: '剩余寿命',
-			dataIndex: 'residueLifetime'
+			dataIndex: 'residueLifetime',
+			customRender: ({ text }) => {
+				if (text == '4') {
+					return '新品'
+				} else if (text == '3') {
+					return '勘用'
+				} else if (text == '2') {
+					return '待修'
+				} else if (text == '1') {
+					return '报废'
+				}else{
+					return '未知'
+				}
+			}
 		},
 	]
 	// 操作栏通过权限判断是否显示

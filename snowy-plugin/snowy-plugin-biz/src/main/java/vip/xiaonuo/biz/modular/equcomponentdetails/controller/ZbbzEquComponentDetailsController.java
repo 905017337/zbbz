@@ -13,13 +13,17 @@
 package vip.xiaonuo.biz.modular.equcomponentdetails.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -28,8 +32,10 @@ import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetail
 import vip.xiaonuo.biz.modular.equcomponentdetails.service.ZbbzEquComponentDetailsService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -145,5 +151,20 @@ public class ZbbzEquComponentDetailsController {
     @GetMapping("/biz/equcomponentdetails/findComponentByPlanId")
     public CommonResult findComponentByPlanId(@RequestParam(value = "equId") String equId){
         return CommonResult.data(zbbzEquComponentDetailsService.findComponentByPlanId(equId));
+    }
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("下载模版")
+    @CommonLog("下载模版")
+    @GetMapping(value = "/biz/equcomponentdetails/DownloadImportcomponentTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadImporEquTemplate(HttpServletResponse response) throws IOException {
+        zbbzEquComponentDetailsService.downloadImporEquTemplate(response);
+    }
+
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("装备导入")
+    @CommonLog("装备导入")
+    @PostMapping("/biz/equcomponentdetails/import")
+    public CommonResult<JSONObject> importEqu(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file) {
+        return CommonResult.data(zbbzEquComponentDetailsService.importEqu(file));
     }
 }

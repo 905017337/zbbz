@@ -12,12 +12,16 @@
  */
 package vip.xiaonuo.biz.modular.equcomponentdetails.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equcomponentdetails.dto.ZbbzEquComponentDetailsDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -81,4 +85,8 @@ public interface ZbbzEquComponentDetailsService extends IService<ZbbzEquComponen
     void addComponentForm(ZbbzEquComponentDetailsPlanParam zbbzEquComponentDetailsPlanParam);
 
     List<ZbbzEquComponentDetailsDto> findComponentByPlanId(String equId);
+
+    JSONObject importEqu(MultipartFile file);
+
+    void downloadImporEquTemplate(HttpServletResponse response) throws IOException;
 }

@@ -134,16 +134,16 @@ const onOpen = (record, action) => {
 		selectedKeys.value = ([])
 		disabled.value = false
 	} else if ('edit' == action.action) {
-		equByIdsParam.startDate = record.startDate
-		equByIdsParam.planId = record.id
-		equByIdsParam.endDate = record.endDate
-		let recordData = cloneDeep(record)
-		formData.value = Object.assign({}, recordData)
-		checkedKeys.value = record.treeSelect
-		selectTableDate.value = record.zbbzEquBasicsDetailsParamList
-		dataSource.value = selectTableDate.value
+		setData(record);
 		disabled.value = false
 	} else if ('view' == action.action) {
+		setData(record);
+		
+		disabled.value = true
+	}
+}
+const setData=(record)=>{
+	console.log(record)
 		equByIdsParam.startDate = record.startDate
 		equByIdsParam.planId = record.id
 		equByIdsParam.endDate = record.endDate
@@ -152,8 +152,6 @@ const onOpen = (record, action) => {
 		checkedKeys.value = record.treeSelect
 		selectTableDate.value = record.zbbzEquBasicsDetailsParamList
 		dataSource.value = selectTableDate.value
-		disabled.value = true
-	}
 }
 const loadData = () => {
 	zbbzEquCategoryApi.categoryTree().then((res) => {
@@ -178,7 +176,7 @@ const formRules = {
 const onSubmit = () => {
 	formRef.value.validate().then(() => {
 		submitLoading.value = true
-		formData.value.zbbzPlanEquAddParamList = tableSelect
+		formData.value.zbbzEquBasicsDetailsParamList = tableSelect
 		const formDataParam = cloneDeep(formData.value)
 		zbbzPlanBasicsDetailsApi
 			.zbbzPlanBasicsDetailsSubmitForm(formDataParam, !formDataParam.id)
@@ -197,6 +195,29 @@ watch(expandedKeys, () => {
 });
 watch(selectedKeys, () => {
 	console.log('selectedKeys', selectedKeys.value);
+	// let ids = []
+	// ids.push(checkedNodes)
+	// equByIdsParam.ids = ids
+	// zbbzEquCategoryApi.findEquByCategory(equByIdsParam).then((res) => {
+	// 	console.log(res)
+	// 	//比较res数据中selectTableDate中的数据，如果有相同的设置table的选中状态
+	// 	let tempSelectTableDate = cloneDeep(selectTableDate.value)
+	// 	let tempRes = cloneDeep(res)
+	// 	let tempdate = []
+	// 		tempSelectTableDate.forEach((item) => {
+	// 			tempRes.forEach((item2) => {
+	// 				if (item.equId == item2.id) {
+	// 					item2.startDate = item.startDate
+	// 					item2.endDate = item.endDate
+	// 					item2.weight = item.weight
+	// 					tempdate.push(item2.id)
+	// 				}
+	// 			})
+	// 		})
+	// 	selectedRowKeys.value = tempdate
+	// 	tableSelect.value = tempSelectTableDate
+	// 	dataSource.value = tempRes
+	// })
 });
 watch(checkedKeys, () => {
 	console.log('checkedKeys', checkedKeys);
@@ -214,7 +235,6 @@ const treeSelect = (selectedKeysValue, info) => {
 	}
 	equByIdsParam.ids = ids
 	//获取到所有的资源
-
 	zbbzEquCategoryApi.findEquByCategory(equByIdsParam).then((res) => {
 		console.log(res)
 		//比较res数据中selectTableDate中的数据，如果有相同的设置table的选中状态
@@ -224,12 +244,16 @@ const treeSelect = (selectedKeysValue, info) => {
 			tempSelectTableDate.forEach((item) => {
 				tempRes.forEach((item2) => {
 					if (item.equId == item2.id) {
+						item2.startDate = item.startDate
+						item2.endDate = item.endDate
+						item2.weight = item.weight
 						tempdate.push(item2.id)
 					}
 				})
 			})
 		selectedRowKeys.value = tempdate
-		dataSource.value = res
+		tableSelect.value = tempSelectTableDate
+		dataSource.value = tempRes
 	})
 	selectedKeys.value = selectedKeysValue
 };
@@ -242,7 +266,9 @@ const treeCheck = (checkedKeysValue, info) => {
 
 //获取表格中选中的数据
 const onSelectChange = (selectedRowKeysValue, selectedRows) => {
+	//比较下selectedRowKeys中是否有selectedRowKeysValue对应的值，如果没有
 	selectedRowKeys.value = selectedRowKeysValue
+	console.log(selectedRowKeys.value)
 	tableSelect.value = selectedRows
 }
 

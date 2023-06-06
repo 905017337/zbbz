@@ -34,6 +34,7 @@ import vip.xiaonuo.biz.modular.equbasicsdetails.dto.ZbbzEquBasicsDetailsDto;
 import vip.xiaonuo.biz.modular.equbasicsdetails.param.*;
 import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
 import vip.xiaonuo.biz.modular.equcategory.mapper.ZbbzEquCategoryMapper;
+import vip.xiaonuo.biz.modular.equcategory.service.ZbbzEquCategoryService;
 import vip.xiaonuo.biz.modular.equcomponentdetails.dto.EquComponentDetailsEquDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
@@ -51,6 +52,7 @@ import vip.xiaonuo.common.util.CommonResponseUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,6 +74,9 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
     ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
     @Resource
     ZbbzEquCategoryMapper zbbzEquCategoryMapper;
+
+    @Resource
+    ZbbzEquCategoryService zbbzEquCategoryService;
     @Override
     public Page<ZbbzEquBasicsDetailsDto> page(ZbbzEquBasicsDetailsPageParam zbbzEquBasicsDetailsPageParam) {
         QueryWrapper<ZbbzEquBasicsDetails> queryWrapper = new QueryWrapper<>();
@@ -106,11 +111,13 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
             List<ZbbzEquComponentDetails> selectedList = zbbzEquComponentDetailsMapper.selectList(qw);
             BeanUtil.copyProperties(e,dto);
             List<EquComponentDetailsEquDto> objects = new ArrayList<>();
-            List<String> categoryList = new ArrayList<>();
-            zhaobaba(e.getCategoryId(),categoryList);
-            Collections.reverse(categoryList);
-            Object[] listArray = categoryList.toArray();
-            dto.setCategoryId(listArray);
+            if(StringUtils.isNotEmpty(e.getCategoryId())){
+                List<String> categoryList = new ArrayList<>();
+                getParent(e.getCategoryId(),categoryList);
+                Collections.reverse(categoryList);
+                Object[] listArray = categoryList.toArray();
+                dto.setCategoryId(listArray);
+            }
             selectedList.forEach(item->{
                 EquComponentDetailsEquDto equDto = new EquComponentDetailsEquDto();
                 BeanUtil.copyProperties(item,equDto);
@@ -123,7 +130,7 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
         result.setRecords(arrayList);
         return result;
     }
-    void zhaobaba(String id,List<String> categoryList){
+    void getParent(String id,List<String> categoryList){
         QueryWrapper<ZbbzEquCategory> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(ZbbzEquCategory::getId,id);
         ZbbzEquCategory selectedOne = zbbzEquCategoryMapper.selectOne(wrapper);
@@ -133,7 +140,7 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
                 categoryList.add(selectedOne.getId());
             }else {
                 categoryList.add(selectedOne.getId());
-                zhaobaba(selectedOne.getParentId(),categoryList);
+                getParent(selectedOne.getParentId(),categoryList);
             }
 
 
@@ -143,7 +150,14 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ZbbzEquBasicsDetailsAddParam zbbzEquBasicsDetailsAddParam) {
-        ZbbzEquBasicsDetails zbbzEquBasicsDetails = BeanUtil.toBean(zbbzEquBasicsDetailsAddParam, ZbbzEquBasicsDetails.class);
+        ZbbzEquBasicsDetails zbbzEquBasicsDetails = new ZbbzEquBasicsDetails();
+        zbbzEquBasicsDetails.setName(zbbzEquBasicsDetailsAddParam.getName());
+        zbbzEquBasicsDetails.setModel(zbbzEquBasicsDetailsAddParam.getModel());
+        zbbzEquBasicsDetails.setResidueLifetime(zbbzEquBasicsDetailsAddParam.getResidueLifetime());
+        zbbzEquBasicsDetails.setLocation(zbbzEquBasicsDetailsAddParam.getLocation());
+        zbbzEquBasicsDetails.setStatus(zbbzEquBasicsDetailsAddParam.getStatus());
+        String[] categoryId = zbbzEquBasicsDetailsAddParam.getCategoryId();
+        zbbzEquBasicsDetails.setCategoryId(categoryId[categoryId.length-1]);
         this.save(zbbzEquBasicsDetails);
     }
 
@@ -199,8 +213,10 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
     }
 
     @Override
+    @Transactional
     public JSONObject importEqu(MultipartFile file) {
         try {
+            List<ZbbzEquCategory> categoryList = zbbzEquCategoryService.list();
             int successCount = 0;
             int errorCount = 0;
             JSONArray errorDetail = JSONUtil.createArray();
@@ -211,7 +227,7 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
             List<ZbbzEquBasicsDetailsImportParam> equImportParamList =  EasyExcel.read(tempFile).head(ZbbzEquBasicsDetailsImportParam.class).sheet()
                     .headRowNumber(2).doReadSync();
             for (int i = 0; i < equImportParamList.size(); i++) {
-                JSONObject jsonObject = this.doImport(equImportParamList.get(i), i);
+                JSONObject jsonObject = this.doImport(equImportParamList.get(i), i,categoryList);
                 if(jsonObject.getBool("success")) {
                     successCount += 1;
                 } else {
@@ -230,17 +246,41 @@ public class ZbbzEquBasicsDetailsServiceImpl extends ServiceImpl<ZbbzEquBasicsDe
         }
     }
 
-    private JSONObject doImport(ZbbzEquBasicsDetailsImportParam zbbzEquBasicsDetailsImportParam, int i) {
-        String planName = zbbzEquBasicsDetailsImportParam.getName();
+    private JSONObject doImport(ZbbzEquBasicsDetailsImportParam zbbzEquBasicsDetailsImportParam, int i,List<ZbbzEquCategory> categoryList) {
+        String equName = zbbzEquBasicsDetailsImportParam.getName();
+        String model = zbbzEquBasicsDetailsImportParam.getModel();
+        String residueLifetime = zbbzEquBasicsDetailsImportParam.getResidueLifetime();
+        String status = zbbzEquBasicsDetailsImportParam.getStatus();
         String location = zbbzEquBasicsDetailsImportParam.getLocation();
+        String categoryName = zbbzEquBasicsDetailsImportParam.getCategoryName();
+        ZbbzEquCategory category = categoryList.stream().filter(e -> e.getName().equals(categoryName)).findFirst().get();
         // 校验必填参数
-        if(ObjectUtil.hasEmpty(planName, location)) {
+        if(ObjectUtil.hasEmpty(equName, model,residueLifetime,status,location,category)) {
             return JSONUtil.createObj().set("index", i + 1).set("success", false).set("msg", "必填字段存在空值");
         } else {
             try {
                 ZbbzEquBasicsDetails details = new ZbbzEquBasicsDetails();
                 // 拷贝属性
                 BeanUtil.copyProperties(zbbzEquBasicsDetailsImportParam, details);
+                if("空闲".equals(zbbzEquBasicsDetailsImportParam.getStatus())){
+                    details.setStatus("0");
+                }
+                if("占用".equals(zbbzEquBasicsDetailsImportParam.getStatus())){
+                    details.setStatus("1");
+                }
+                if("新品".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("4");
+                }
+                if("滥用".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("3");
+                }
+                if("待修".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("2");
+                }
+                if("报废".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("1");
+                }
+                details.setCategoryId(category.getId());
                 details.setExportDate(new Date());
                 // 保存或更新
                 this.saveOrUpdate(details);

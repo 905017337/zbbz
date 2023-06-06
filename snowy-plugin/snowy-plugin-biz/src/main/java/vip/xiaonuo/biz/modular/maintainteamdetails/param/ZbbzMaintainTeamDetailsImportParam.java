@@ -10,50 +10,39 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.planbasicsdetails.param;
+package vip.xiaonuo.biz.modular.maintainteamdetails.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.biz.modular.planequ.param.ZbbzPlanEquAddParam;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 /**
- * 作战任务添加参数
+ * 基础信息添加参数
  *
  * @author czh
- * @date  2023/06/01 12:40
+ * @date  2023/06/01 12:43
  **/
 @Getter
 @Setter
-public class ZbbzPlanBasicsDetailsAddParam {
+public class ZbbzMaintainTeamDetailsImportParam {
 
-    private String id;
-    /** 名称 */
-    @ApiModelProperty(value = "名称", required = true, position = 2)
+    /** 维修团队名 */
+    @ApiModelProperty(value = "维修团队名", required = true, position = 2)
     @NotBlank(message = "name不能为空")
     private String name;
 
-    /** 开始时间 */
-    @ApiModelProperty(value = "作战时间", required = true, position = 3)
-    @NotNull(message = "startDate不能为空")
-    private Date startDate;
-
-    /** 结束时间 */
-    @ApiModelProperty(value = "结束时间", required = true, position = 4)
-    @NotNull(message = "endDate不能为空")
-    private Date endDate;
-
-    /** 作战位置 */
-    @ApiModelProperty(value = "作战位置", required = true, position = 5)
-    @NotBlank(message = "location不能为空")
+    /** 经纬度 */
+    @ApiModelProperty(value = "经纬度", position = 3)
     private String location;
 
-    private List<ZbbzPlanEquAddParam> zbbzEquBasicsDetailsParamList;
+    /** 维修效率 */
+    @ApiModelProperty(value = "维修效率", position = 4)
+    private String maintainCapacity;
+
+    /** 移动效率 */
+    @ApiModelProperty(value = "移动效率", position = 5)
+    private String actionCapacity;
 
 }

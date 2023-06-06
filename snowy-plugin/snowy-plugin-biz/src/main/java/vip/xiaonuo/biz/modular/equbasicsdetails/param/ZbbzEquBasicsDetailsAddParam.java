@@ -61,7 +61,6 @@ public class ZbbzEquBasicsDetailsAddParam {
 
     /** 分类id */
     @ApiModelProperty(value = "分类id", position = 10)
-    @NotBlank(message = "名称不能为空")
-    private String categoryId;
+    private String[] categoryId;
 
 }

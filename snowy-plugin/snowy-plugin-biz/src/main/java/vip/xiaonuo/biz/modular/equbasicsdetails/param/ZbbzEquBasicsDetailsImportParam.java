@@ -40,25 +40,26 @@ public class ZbbzEquBasicsDetailsImportParam {
     private String model;
 
     /** 经纬度 */
-    @ApiModelProperty(value = "所在位置", position = 4)
+    @ApiModelProperty(value = "位置", position = 4)
     @NotBlank(message = "所在位置不能为空")
     private String location;
 
     /** 剩余寿命 */
-    @ApiModelProperty(value = "剩余寿命", position = 5)
+    @ApiModelProperty(value = "寿命", position = 5)
     private String residueLifetime;
 
     /** 使用情况 */
     @ApiModelProperty(value = "使用情况", position = 6)
     private String status;
 
-    /** 入库时间 */
-    @ApiModelProperty(value = "入库时间", position = 7)
-    private Date exportDate;
+
 
     /** 分类id */
-    @ApiModelProperty(value = "分类id", position = 10)
-    @NotBlank(message = "名称不能为空")
-    private String categoryId;
+    @ApiModelProperty(value = "所属分类", position = 7)
+    @NotBlank(message = "所属分类不能为空")
+    private String categoryName;
 
+    /** 入库时间 */
+    @ApiModelProperty(value = "入库时间", position = 8)
+    private Date exportDate;
 }

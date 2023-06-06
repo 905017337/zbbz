@@ -12,14 +12,18 @@
  */
 package vip.xiaonuo.biz.modular.maintainteamcapacity.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.maintainteamcapacity.entity.ZbbzMaintainTeamCapacity;
 import vip.xiaonuo.biz.modular.maintainteamcapacity.param.ZbbzMaintainTeamCapacityAddParam;
 import vip.xiaonuo.biz.modular.maintainteamcapacity.param.ZbbzMaintainTeamCapacityEditParam;
 import vip.xiaonuo.biz.modular.maintainteamcapacity.param.ZbbzMaintainTeamCapacityIdParam;
 import vip.xiaonuo.biz.modular.maintainteamcapacity.param.ZbbzMaintainTeamCapacityPageParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -77,4 +81,8 @@ public interface ZbbzMaintainTeamCapacityService extends IService<ZbbzMaintainTe
      * @date  2023/06/01 12:49
      **/
     ZbbzMaintainTeamCapacity queryEntity(String id);
+
+    void downloadImporEquTemplate(HttpServletResponse response) throws IOException;
+
+    JSONObject importEqu(MultipartFile file);
 }

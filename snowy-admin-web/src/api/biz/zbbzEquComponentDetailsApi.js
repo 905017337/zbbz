@@ -42,5 +42,13 @@ export default {
 	findComponentByPlanId(data) {
 		return request('findComponentByPlanId', data, 'get')
 	},
+	//下载模板
+	DownloadImportcomponentTemplate(data) {
+		return request('DownloadImportcomponentTemplate', data, 'get')
+	},
+	//导入文件
+	componentImport(data) {
+		return request('import', data, 'post')
+	}
 
 }

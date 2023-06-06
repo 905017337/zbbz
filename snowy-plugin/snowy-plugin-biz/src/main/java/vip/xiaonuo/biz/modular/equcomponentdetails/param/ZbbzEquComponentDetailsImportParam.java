@@ -10,50 +10,47 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.maintainteamcapacity.entity;
+package vip.xiaonuo.biz.modular.equcomponentdetails.param;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
- * 零部件管理实体
+ * 装备零部件添加参数
  *
  * @author czh
- * @date  2023/06/01 12:49
+ * @date  2023/06/01 12:51
  **/
 @Getter
 @Setter
-@TableName("zbbz_maintain_team_capacity")
-public class ZbbzMaintainTeamCapacity {
+public class ZbbzEquComponentDetailsImportParam {
 
-    /** 主键 */
-    @TableId
-    @ApiModelProperty(value = "主键", position = 1)
-    private String id;
-
-    /** 维修团队id */
-    @ApiModelProperty(value = "维修团队id", position = 2)
-    private String maintainTeamId;
-
-    @ApiModelProperty(value = "型号")
-    private String model;
     /** 零部件名称 */
-    @ApiModelProperty(value = "零部件名称", position = 3)
-    private String equComponentName;
+    @ApiModelProperty(value = "零部件名称", position = 2)
+    private String name;
 
-    /** 能力 */
-    @ApiModelProperty(value = "能力", position = 4)
-    private String capacity;
-
-    /** 数量 */
-    @ApiModelProperty(value = "数量", position = 5)
-    private String number;
+    /** 型号 */
+    @ApiModelProperty(value = "型号", position = 3)
+    private String model;
 
     /** 剩余寿命 */
     @ApiModelProperty(value = "剩余寿命", position = 6)
     private String residueLifetime;
+
+    @ApiModelProperty(value = "装备名称",position = 7)
+    private String equName;
+
+    /** 描述 */
+    @ApiModelProperty(value = "描述", position = 4)
+    private String equDesc;
+
+    /** 子编号 */
+    @ApiModelProperty(value = "子编号", position = 5)
+    private String iId;
+
+
+    /** 父id */
+    @ApiModelProperty(value = "分类名称", position = 8)
+    private String categoryName;
 }

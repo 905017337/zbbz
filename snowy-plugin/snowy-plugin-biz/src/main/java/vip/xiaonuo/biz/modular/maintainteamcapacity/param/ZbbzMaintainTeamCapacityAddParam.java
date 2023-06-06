@@ -35,6 +35,9 @@ public class ZbbzMaintainTeamCapacityAddParam {
     @ApiModelProperty(value = "维修团队id", position = 2)
     private String maintainTeamId;
 
+    @ApiModelProperty(value = "型号", position = 2)
+    private String model;
+
     /** 零部件名称 */
     @ApiModelProperty(value = "零部件名称", position = 3)
     private String equComponentName;

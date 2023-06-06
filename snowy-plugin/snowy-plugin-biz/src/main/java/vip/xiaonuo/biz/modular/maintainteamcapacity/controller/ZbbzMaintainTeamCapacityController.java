@@ -13,16 +13,17 @@
 package vip.xiaonuo.biz.modular.maintainteamcapacity.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -34,8 +35,10 @@ import vip.xiaonuo.biz.modular.maintainteamcapacity.param.ZbbzMaintainTeamCapaci
 import vip.xiaonuo.biz.modular.maintainteamcapacity.service.ZbbzMaintainTeamCapacityService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.IOException;
 
 /**
  * 零部件管理控制器
@@ -127,5 +130,21 @@ public class ZbbzMaintainTeamCapacityController {
     @GetMapping("/biz/maintainteamcapacity/detail")
     public CommonResult<ZbbzMaintainTeamCapacity> detail(@Valid ZbbzMaintainTeamCapacityIdParam zbbzMaintainTeamCapacityIdParam) {
         return CommonResult.data(zbbzMaintainTeamCapacityService.detail(zbbzMaintainTeamCapacityIdParam));
+    }
+
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("下载模版")
+    @CommonLog("下载模版")
+    @GetMapping(value = "/biz/maintainteamcapacity/equDownloadImportMaintainTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadImporEquTemplate(HttpServletResponse response) throws IOException {
+        zbbzMaintainTeamCapacityService.downloadImporEquTemplate(response);
+    }
+
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("装备导入")
+    @CommonLog("装备导入")
+    @PostMapping("/biz/maintainteamcapacity/import")
+    public CommonResult<JSONObject> importEqu(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file) {
+        return CommonResult.data(zbbzMaintainTeamCapacityService.importEqu(file));
     }
 }

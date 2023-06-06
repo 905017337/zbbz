@@ -29,5 +29,13 @@ export default {
 	zbbzMaintainTeamCapacityDetail(data) {
 		return request('detail', data, 'get')
 	},
+	//下载模板
+	DownloadImportcomponentTemplate(data) {
+		return request('equDownloadImportMaintainTemplate', data, 'get')
+	},
+	//导入文件
+	componentImport(data) {
+		return request('import', data, 'post')
+	}
 
 }

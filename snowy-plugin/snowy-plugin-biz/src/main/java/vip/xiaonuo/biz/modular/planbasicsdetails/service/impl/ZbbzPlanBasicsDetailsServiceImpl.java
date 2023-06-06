@@ -141,7 +141,7 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         log.setStartDate(zbbzPlanBasicsDetails.getStartDate());
         log.setEndDate(zbbzPlanBasicsDetails.getEndDate());
         log.setPlanName(zbbzPlanBasicsDetails.getName());
-        final List<ZbbzPlanEquAddParam> detailsParamList = zbbzPlanBasicsDetailsAddParam.getZbbzPlanEquAddParamList();
+        final List<ZbbzPlanEquAddParam> detailsParamList = zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList();
         if(!detailsParamList.isEmpty()){
             final List<String> collect = detailsParamList.stream().map(ZbbzPlanEquAddParam::getId)
                     .collect(Collectors.toList());
@@ -152,7 +152,7 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
         zbbzPlanLogService.save(log);
     }
     public void updatePlanEquByPlanId(ZbbzPlanBasicsDetailsAddParam zbbzPlanBasicsDetailsAddParam) {
-        zbbzPlanBasicsDetailsAddParam.getZbbzPlanEquAddParamList().stream().forEach(e->{
+        zbbzPlanBasicsDetailsAddParam.getZbbzEquBasicsDetailsParamList().stream().forEach(e->{
             ZbbzPlanEqu planEqu = new ZbbzPlanEqu();
             planEqu.setPlanId(zbbzPlanBasicsDetailsAddParam.getId());
             planEqu.setName(e.getName());
@@ -160,6 +160,7 @@ public class ZbbzPlanBasicsDetailsServiceImpl extends ServiceImpl<ZbbzPlanBasics
             planEqu.setStartDate(e.getStartDate());
             planEqu.setEndDate(e.getEndDate());
             planEqu.setEquId(e.getId());
+            planEqu.setWeight(e.getWeight());
             zbbzPlanEquMapper.insert(planEqu);
         });
         //修改日志

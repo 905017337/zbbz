@@ -12,10 +12,17 @@
  */
 package vip.xiaonuo.biz.modular.equcomponentdetails.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,7 +30,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.biz.modular.equbasicsdetails.entity.ZbbzEquBasicsDetails;
+import vip.xiaonuo.biz.modular.equbasicsdetails.param.ZbbzEquBasicsDetailsImportParam;
+import vip.xiaonuo.biz.modular.equbasicsdetails.service.ZbbzEquBasicsDetailsService;
+import vip.xiaonuo.biz.modular.equcategory.entity.ZbbzEquCategory;
+import vip.xiaonuo.biz.modular.equcategory.service.ZbbzEquCategoryService;
 import vip.xiaonuo.biz.modular.equcomponentdetails.dto.ZbbzEquComponentDetailsDto;
 import vip.xiaonuo.biz.modular.equcomponentdetails.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -32,9 +44,16 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.equcomponentdetails.entity.ZbbzEquComponentDetails;
 import vip.xiaonuo.biz.modular.equcomponentdetails.mapper.ZbbzEquComponentDetailsMapper;
 import vip.xiaonuo.biz.modular.equcomponentdetails.service.ZbbzEquComponentDetailsService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +67,10 @@ public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquCompo
 
     @Resource
     ZbbzEquComponentDetailsMapper zbbzEquComponentDetailsMapper;
+    @Resource
+    ZbbzEquBasicsDetailsService zbbzEquBasicsDetailsService;
+    @Resource
+    ZbbzEquCategoryService zbbzEquCategoryService;
     @Override
     public Page<ZbbzEquComponentDetails> page(ZbbzEquComponentDetailsPageParam zbbzEquComponentDetailsPageParam) {
         QueryWrapper<ZbbzEquComponentDetails> queryWrapper = new QueryWrapper<>();
@@ -164,5 +187,102 @@ public class ZbbzEquComponentDetailsServiceImpl extends ServiceImpl<ZbbzEquCompo
             list.add(dto);
         });
         return list;
+    }
+
+    @Override
+    public void downloadImporEquTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = POICacheManager.getFile("equExportTemplate.xlsx");
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download("任务导入模板.xlsx", bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载用户导入模板失败：", e);
+            CommonResponseUtil.renderError(response, "下载用户导入模板失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public JSONObject importEqu(MultipartFile file) {
+        try {
+            List<ZbbzEquBasicsDetails> detailsList = zbbzEquBasicsDetailsService.list();
+            List<ZbbzEquCategory> categoryList = zbbzEquCategoryService.list();
+            int successCount = 0;
+            int errorCount = 0;
+            JSONArray errorDetail = JSONUtil.createArray();
+            // 创建临时文件
+            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "equImportTemplate.xlsx"));
+            // 读取excel
+            List<ZbbzEquComponentDetailsImportParam> equImportParamList =  EasyExcel.read(tempFile).head(ZbbzEquComponentDetailsImportParam.class).sheet()
+                    .headRowNumber(2).doReadSync();
+            for (int i = 0; i < equImportParamList.size(); i++) {
+                JSONObject jsonObject = this.doImport(equImportParamList.get(i), i,detailsList,categoryList);
+                if(jsonObject.getBool("success")) {
+                    successCount += 1;
+                } else {
+                    errorCount += 1;
+                    errorDetail.add(jsonObject);
+                }
+            }
+            return JSONUtil.createObj()
+                    .set("totalCount", equImportParamList.size())
+                    .set("successCount", successCount)
+                    .set("errorCount", errorCount)
+                    .set("errorDetail", errorDetail);
+        } catch (Exception e) {
+            log.error(">>> 任务导入失败：", e);
+            throw new CommonException("任务导入失败");
+        }
+    }
+
+    private JSONObject doImport(ZbbzEquComponentDetailsImportParam zbbzEquBasicsDetailsImportParam, int i,
+                                List<ZbbzEquBasicsDetails> detailsList,List<ZbbzEquCategory> categoryList) {
+        String componentName = zbbzEquBasicsDetailsImportParam.getName();
+        String model = zbbzEquBasicsDetailsImportParam.getModel();
+        String residueLifetime = zbbzEquBasicsDetailsImportParam.getResidueLifetime();
+        String equName = zbbzEquBasicsDetailsImportParam.getEquName();
+        ZbbzEquBasicsDetails basicsDetails = detailsList.stream().filter(e -> e.getName().equals(equName)).findFirst().get();
+        ZbbzEquCategory category = new ZbbzEquCategory();
+        if(StringUtils.isNotEmpty(zbbzEquBasicsDetailsImportParam.getCategoryName())){
+            category = categoryList.stream().filter(e -> e.getName().equals(zbbzEquBasicsDetailsImportParam.getCategoryName())).findFirst().get();
+        }
+        // 校验必填参数
+        if(ObjectUtil.hasEmpty(componentName, model,residueLifetime,equName)) {
+            return JSONUtil.createObj().set("index", i + 1).set("success", false).set("msg", "必填字段存在空值");
+        } else {
+            try {
+                ZbbzEquComponentDetails details = new ZbbzEquComponentDetails();
+                BeanUtil.copyProperties(zbbzEquBasicsDetailsImportParam,details);
+                if("新品".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("4");
+                }
+                if("滥用".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("3");
+                }
+                if("待修".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("2");
+                }
+                if("报废".equals(zbbzEquBasicsDetailsImportParam.getResidueLifetime())){
+                    details.setResidueLifetime("1");
+                }
+                details.setName(componentName);
+                details.setModel(model);
+                details.setIId(zbbzEquBasicsDetailsImportParam.getIId());
+                details.setCategoryId(zbbzEquBasicsDetailsImportParam.getCategoryName());
+                details.setEquId(basicsDetails.getId());
+                if(null !=category){
+                    details.setCategoryId(category.getId());
+                }
+                details.setEquDesc(zbbzEquBasicsDetailsImportParam.getEquDesc());
+                // 保存或更新
+                this.saveOrUpdate(details);
+                // 返回成功
+                return JSONUtil.createObj().set("success", true);
+            } catch (Exception e) {
+                log.error(">>> 数据导入异常：", e);
+                return JSONUtil.createObj().set("success", false).set("index", i + 1).set("msg", "数据导入异常");
+            }
+        }
     }
 }
